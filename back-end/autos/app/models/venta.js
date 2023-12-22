@@ -15,9 +15,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     { freezeTableName: true }
   );
-  anime.associate = function (models) {
-    anime.belongsTo(models.persona, { foreignKey: "id_persona" });
-    anime.hasMany(models.comentario, { foreignKey: "id_anime", as: "comentario" });     
-  };
-  return anime;
+  
+  return venta;
 };
