@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     { freezeTableName: true }
   );
   cuenta.associate = function (models) {
-    cuenta.belongsTo(models.persona, { foreignKey: "id_persona" });
+    cuenta.belongsTo(models.personal, { foreignKey: "id_personal" });
   };
   return cuenta;
 };

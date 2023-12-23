@@ -1,10 +1,9 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-  const persona = sequelize.define(
-    "persona",
+  const personal = sequelize.define(
+    "personal",
     {
-      //Primero el nombre de la clase y entre llaves sus atributos
       apellidos: { type: DataTypes.STRING(150), defaultValue: "NONE" },
       nombres: { type: DataTypes.STRING(150), defaultValue: "NONE" },
       direccion: { type: DataTypes.STRING, defaultValue: "NONE" },
@@ -13,11 +12,11 @@ module.exports = (sequelize, DataTypes) => {
       external_id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 },
     },
     { freezeTableName: true }
-  ); //para que la tabla tome el nombre que nosotros le damos
-  persona.associate = function (models) {
-    persona.hasOne(models.cuenta, { foreignKey: "id_persona", as: "cuenta" });
-    persona.belongsTo(models.rol, { foreignKey: "id_rol" });
-    persona.hasMany(models.anime, { foreignKey: "id_persona", as: "anime"});
+  );
+  personal.associate = function (models) {
+    personal.hasOne(models.cuenta, { foreignKey: "id_personal", as: "cuenta" });
+    personal.belongsTo(models.rol, { foreignKey: "id_rol" });
+    personal.hasMany(models.venta, { foreignKey: "id_personal", as: "venta" });
   };
-  return persona;
+  return personal;
 };

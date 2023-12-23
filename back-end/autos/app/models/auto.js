@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       marca: { type: DataTypes.STRING(150), defaultValue: "NONE" },
       modelo: { type: DataTypes.STRING(150), defaultValue: "NONE" },
       archivo: { type: DataTypes.STRING(150), defaultValue: "NONE.jpg" },
-      anio: { type: DataTypes.INTEGER(4), defaultValue: "NONE" },
+      anio: { type: DataTypes.INTEGER(4), defaultValue: 0 },
       color: {
         type: DataTypes.ENUM([
           "NEGRO",
@@ -26,10 +26,9 @@ module.exports = (sequelize, DataTypes) => {
     { freezeTableName: true }
   );
   auto.associate = function (models) {
-    anime.belongsTo(models.persona, { foreignKey: "id_persona" });
-    anime.hasMany(models.comentario, {
-      foreignKey: "id_anime",
-      as: "comentario",
+    auto.hasMany(models.venta, {
+      foreignKey: "id_auto",
+      as: "venta",
     });
   };
   return auto;

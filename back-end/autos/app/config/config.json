@@ -11,7 +11,7 @@
     "staging": {
       "username": "staging_jay",
       "password": "UzUmYm-W53",
-      "database": "animeListDBxd",
+      "database": "ventaAutosDB",
       "dialect": "mysql",
       "operatorAliases": false
     },
@@ -19,7 +19,7 @@
     "production": {
       "username": "production_Jay",
       "password": "UzUmYm-W53",
-      "database": "animeListDBxd",
+      "database": "ventaAutosDB",
       "dialect": "mysql",
       "operatorAliases": false
     }

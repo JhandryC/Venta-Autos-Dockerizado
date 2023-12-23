@@ -1,20 +1,20 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-  const anime = sequelize.define(
-    "anime",
+  const venta = sequelize.define(
+    "venta",
     {
-      titulo: { type: DataTypes.STRING(150), defaultValue: "NONE" },
-      cuerpo: { type: DataTypes.TEXT, defaultValue: "NONE" },
-      archivo: { type: DataTypes.STRING(150), defaultValue: "NONE" },
-      tipo_archivo: {type: DataTypes.ENUM(['VIDEO', 'IMAGEN']), defaultValue : "IMAGEN"},
-      tipo_anime: {type: DataTypes.ENUM(['NORMAL', 'DEPORTIVA', 'URGENTE', 'SOCIAL', 'TECNOLOGICA']), defaultValue: "NORMAL"},
-      fecha: { type: DataTypes.DATEONLY },
-      estado: { type: DataTypes.BOOLEAN, defaultValue: true },
+      recargo: { type: DataTypes.DOUBLE, defaultValue: 0 },
+      precioTotal: { type: DataTypes.DOUBLE, defaultValue: 0 },
+      fecha: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
       external_id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 },
     },
     { freezeTableName: true }
   );
-  
+  venta.associate = function (models) {
+    venta.belongsTo(models.auto, { foreignKey: "id_auto" });
+    venta.belongsTo(models.comprador, { foreignKey: "id_comprador" });
+    venta.belongsTo(models.personal, { foreignKey: "id_personal" });
+  };
   return venta;
 };
