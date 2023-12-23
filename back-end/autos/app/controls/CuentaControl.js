@@ -1,9 +1,7 @@
 "use strict";
 
 var models = require("../models");
-//var persona = models.persona;
 var cuenta = models.cuenta;
-var rol = models.rol;
 let jwt = require("jsonwebtoken");
 
 var bcrypt = require("bcrypt");

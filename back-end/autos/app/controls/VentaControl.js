@@ -1,14 +1,13 @@
 "use strict";
 
-var formidable = require("formidable");
 var fs = require("fs");
 var models = require("../models");
 var personal = models.personal;
+var comprador = models.comprador;
 var auto = models.auto;
-var extensionesImagen = ["jpg", "png"];
-var maxTamanio = 2 * 1024 * 1024;
+var venta = models.venta;
 
-class AutoControl {
+class VentaControl {
   async listar(req, res) {
     var lista = await auto.findAll({
       attributes: [
@@ -55,11 +54,11 @@ class AutoControl {
 
   async guardar(req, res) {
     if (
-      req.body.hasOwnProperty("marca") &&
-      req.body.hasOwnProperty("modelo") &&
-      req.body.hasOwnProperty("anio") &&
-      req.body.hasOwnProperty("color") &&
-      req.body.hasOwnProperty("precio") &&
+      req.body.hasOwnProperty("recargo") &&
+      req.body.hasOwnProperty("precioTotal") &&
+      //req.body.hasOwnProperty("fecha") &&
+      req.body.hasOwnProperty("auto") &&
+      req.body.hasOwnProperty("comprador") &&
       req.body.hasOwnProperty("personal")
     ) {
       var uuid = require("uuid");
@@ -68,28 +67,33 @@ class AutoControl {
         include: [{ model: models.rol, as: "rol", attributes: ["nombre"] }],
       });
 
-      //TODO VALIDAR EL TAMANIO, TIPO DE DATO, ETC
+      var autoA = await auto.findOne({
+        where: { external_id: req.body.auto },
+      });
+
+      var compradorA = await comprador.findOne({
+        where: { external_id: req.body.comprador },
+      });
+
       if (perA == undefined || perA == null) {
         res.status(401);
         res.json({
           msg: "ERROR",
-          tag: "El gerente a buscar no existe",
+          tag: "El personal a buscar no existe",
           code: 401,
         });
       } else {
         var data = {
-          marca: req.body.marca,
           external_id: uuid.v4(),
-          modelo: req.body.modelo,
-          anio: req.body.anio,
-          color: req.body.color,
-          precio: req.body.precio,
+          recargo: req.body.recargo,
+          precioTotal: req.body.precioTotal,
+          id_auto: autoA.id,
+          id_comprador: compradorA.id,
           id_personal: perA.id,
-          estado: true,
-          archivo: "auto.png",
+
         };
         if (perA.rol.nombre == "gerente") {
-          var result = await auto.create(data);
+          var result = await venta.create(data);
           if (result === null) {
             res.status(401);
             res.json({ msg: "Error", tag: "No se puede crear", code: 401 });
@@ -103,7 +107,7 @@ class AutoControl {
           res.status(400);
           res.json({
             msg: "ERROR",
-            tag: "Solo los gerentes puede registrar un auto",
+            tag: "Solo el personal puede registrar una venta",
             code: 400,
           });
         }
@@ -114,117 +118,7 @@ class AutoControl {
     }
   }
 
-  //GUARDAR FOTO
-  async guardarFoto(req, res) {
-    const external = req.params.external;
-
-    if (!external) {
-      res.status(400);
-      res.json({
-        msg: "ERROR",
-        tag: "Falta el Auto a modificar, por favor ingresar su id",
-        code: 400,
-      });
-      return;
-    }
-
-    var form = new formidable.IncomingForm(),
-      files = [];
-    form
-      .on("file", function (field, file) {
-        files.push(file);
-      })
-      .on("end", function () {
-        console.log("OK");
-      });
-
-    form.parse(req, async function (err, fields) {
-      let listado = files;
-      let externalAutoName = fields.nameImage[0];
-
-      let autoModificar = await auto.findOne({
-        where: { external_id: external },
-      });
-
-      if (!autoModificar) {
-        res.status(404);
-        res.json({ msg: "ERROR", tag: "Auto no encontrado", code: 404 });
-        return;
-      }
-
-      for (let index = 0; index < listado.length; index++) {
-        var file = listado[index];
-        var extension = file.originalFilename.split(".").pop().toLowerCase();
-
-        if (file.size > maxTamanio) {
-          res.status(400);
-          return res.json({
-            msg: "ERROR",
-            tag: "El archivo debe ser de 2mb",
-            code: 400,
-          });
-        }
-
-        let extensionesAceptadas = [];
-        if (esImagen(extension)) {
-          extensionesAceptadas = extensionesImagen;
-        } else {
-          res.status(400);
-          return res.json({
-            msg: "ERROR",
-            tag: "Tipo de archivo no soportado",
-            code: 400,
-          });
-        }
-
-        if (!extensionesAceptadas.includes(extension)) {
-          res.status(400);
-          res.json({
-            msg: "ERROR",
-            tag: "Solo soporta" + extensionesAceptadas,
-            code: 200,
-          });
-        } else {
-          const existingImages = autoModificar.archivo
-            ? autoModificar.archivo.split(",")
-            : [];
-
-          let counter = 1;
-          let name;
-          do {
-            name = `${externalAutoName}_${index + counter}.${extension}`;
-            counter++;
-          } while (existingImages.includes(name));
-
-          // Verificar el límite de 3 imágenes
-          if (existingImages.length >= 4) {
-            res.status(400);
-            res.json({
-              msg: "ERROR",
-              tag: "Se ha alcanzado el límite máximo de 3 imágenes por auto.",
-              code: 400,
-            });
-            return;
-          }
-
-          fs.rename(
-            file.filepath,
-            "public/images/" + name,
-            async function (err) {
-              autoModificar.archivo = autoModificar.archivo
-                ? autoModificar.archivo + "," + name
-                : name;
-
-              await autoModificar.save();
-              res.status(200);
-              res.json({ msg: "OK", tag: "Archivo guardado", code: 200 });
-            }
-          );
-        }
-      }
-    });
-  }
-
+  //MODIFICAR VENTA
   async modificar(req, res) {
     // Obtener el auto a modificar
     const external = req.params.external;
@@ -302,4 +196,4 @@ function esImagen(extension) {
   return extensionesImagen.includes(extension);
 }
 
-module.exports = AutoControl;
+module.exports = VentaControl;

@@ -15,7 +15,11 @@ let autoControl = new autoC(); //Luego creamos el "objeto"
 const cuentaC = require("../app/controls/CuentaControl"); //Primero cargamos el archivo
 let cuentaControl = new cuentaC(); //Luego creamos el "objeto"
 
+const compradorC = require("../app/controls/CompradorControl"); //Primero cargamos el archivo
+let compradorControl = new compradorC(); //Luego creamos el "objeto"
 
+const ventaC = require("../app/controls/VentaControl"); //Primero cargamos el archivo
+let ventaControl = new ventaC(); //Luego creamos el "objeto"
 
 /* GET users listing. */
 router.get("/", function (req, res, next) {
@@ -104,10 +108,23 @@ router.get("/admin/personal/get/:external", personalControl.obtener);
 router.post("/admin/personal/save", personalControl.guardar);
 router.put("/admin/personal/modificar/:external", personalControl.modificar);
 
+//COMPRADOR
+router.get("/admin/comprador", compradorControl.listar);
+router.get("/admin/comprador/get/:external", compradorControl.obtener);
+router.post("/admin/comprador/save", compradorControl.guardar);
+router.put("/admin/comprador/modificar/:external", compradorControl.modificar);
+
 //AUTO
 router.get("/autos", autoControl.listar);
 router.get("/autos/get/:external", autoControl.obtener);
 router.post("/admin/auto/save", autoControl.guardar);
+router.put("/admin/auto/modificar/:external", autoControl.modificar);
+router.post("/admin/auto/file/save/:external", autoControl.guardarFoto);
+
+//VENTA
+router.get("/autos", autoControl.listar);
+router.get("/autos/get/:external", autoControl.obtener);
+router.post("/admin/venta/save", ventaControl.guardar);
 router.put("/admin/auto/modificar/:external", autoControl.modificar);
 router.post("/admin/auto/file/save/:external", autoControl.guardarFoto);
 
