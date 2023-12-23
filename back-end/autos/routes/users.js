@@ -1,6 +1,8 @@
 var express = require("express");
 var router = express.Router();
 
+let jwt = require("jsonwebtoken");
+
 const personalC = require("../app/controls/PersonalControl"); //Primero cargamos el archivo
 let personalControl = new personalC(); //Luego creamos el "objeto"
 
@@ -10,6 +12,11 @@ let rolControl = new rolC();
 const autoC = require("../app/controls/AutoControl"); //Primero cargamos el archivo
 let autoControl = new autoC(); //Luego creamos el "objeto"
 
+const cuentaC = require("../app/controls/CuentaControl"); //Primero cargamos el archivo
+let cuentaControl = new cuentaC(); //Luego creamos el "objeto"
+
+
+
 /* GET users listing. */
 router.get("/", function (req, res, next) {
   res.send("HOLA MUNDO");
@@ -17,9 +24,7 @@ router.get("/", function (req, res, next) {
 
 //middleware
 const auth = function middleware(req, res, next) {
-  const token = req.headers["puta-key"];
-
-  console.log(req.headers);
+  const token = req.headers["auto-token"];
 
   if (token === undefined) {
     res.status(401);
@@ -43,8 +48,16 @@ const auth = function middleware(req, res, next) {
         console.log(decoded.external);
         const models = require("../app/models");
         const cuenta = models.cuenta;
+        const rol = models.rol;
         const aux = await cuenta.findOne({
           where: { external_id: decoded.external },
+          include: [
+            {
+              model: models.personal,
+              as: "personal",
+              attributes: ["apellidos", "nombres", "id_rol"],
+            },
+          ],
         });
         if (aux === null) {
           res.status(401);
@@ -55,7 +68,20 @@ const auth = function middleware(req, res, next) {
           });
         } else {
           //TODO Autorizacion
-          next();
+          const rolAux = await rol.findOne({
+            where: { id: aux.personal.id_rol },
+          });
+          if (rolAux.nombre === "gerente") {
+            // El usuario tiene el rol de gerente, se permite el acceso
+            next();
+          } else {
+            res.status(403);
+            res.json({
+              msg: "ERROR",
+              tag: "Acceso no autorizado, se requiere el rol de gerente",
+              code: 403,
+            });
+          }
         }
       }
     });
@@ -65,8 +91,11 @@ const auth = function middleware(req, res, next) {
   // next();
 };
 
+//INICIO SESION
+router.post("/login", cuentaControl.inicio_sesion);
+
 //ROL
-router.get("/admin/rol", rolControl.listar);
+router.get("/admin/rol", auth, rolControl.listar);
 router.post("/admin/rol/save", rolControl.guardar);
 
 //PERSONAL

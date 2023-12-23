@@ -2,6 +2,9 @@
 var models = require("../models");
 var personal = models.personal;
 var rol = models.rol;
+
+var bcrypt = require("bcrypt");
+
 class PersonaControl {
   async listar(req, res) {
     var lista = await personal.findAll({
@@ -74,7 +77,12 @@ class PersonaControl {
         return;
       }
 
+      
       if (rolA != undefined) {
+
+        //Encriptar
+        const claveEncriptada = await bcrypt.hash(req.body.clave, 10);
+
         var data = {
           nombres: req.body.nombres,
           external_id: uuid.v4(),
@@ -85,7 +93,7 @@ class PersonaControl {
           direccion: req.body.direccion,
           cuenta: {
             correo: req.body.correo,
-            clave: req.body.clave,
+            clave: claveEncriptada,
           },
         };
         let transaction = await models.sequelize.transaction();
@@ -157,8 +165,8 @@ class PersonaControl {
       }
 
       var uuid = require("uuid");
-      //var rolA = await rol.findOne({ where: { external_id: req.body.rol } });
-      var rolA = await rol.findOne({ where: { nombre: req.body.rol } });
+      var rolA = await rol.findOne({ where: { external_id: req.body.rol } });
+      //var rolA = await rol.findOne({ where: { nombre: req.body.rol } });
 
       if (rolA != undefined || rolA != null) {
         // Actualizar los campos si se proporcionan en la solicitud

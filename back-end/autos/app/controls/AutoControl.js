@@ -68,7 +68,6 @@ class AutoControl {
         include: [{ model: models.rol, as: "rol", attributes: ["nombre"] }],
       });
 
-      //TODO VALIDAR EL TAMANIO, TIPO DE DATO, ETC
       if (perA == undefined || perA == null) {
         res.status(401);
         res.json({
@@ -152,16 +151,6 @@ class AutoControl {
         return;
       }
 
-      if (listado.length < 1 || listado.length > 3) {
-        res.status(400);
-        res.json({
-          msg: "ERROR",
-          tag: "Se requiere un mínimo de 1 y un máximo de 3 archivos.",
-          code: 400,
-        });
-        return;
-      }
-
       for (let index = 0; index < listado.length; index++) {
         var file = listado[index];
         var extension = file.originalFilename.split(".").pop().toLowerCase();
@@ -207,7 +196,7 @@ class AutoControl {
           } while (existingImages.includes(name));
 
           // Verificar el límite de 3 imágenes
-          if (existingImages.length >= 3) {
+          if (existingImages.length >= 4) {
             res.status(400);
             res.json({
               msg: "ERROR",

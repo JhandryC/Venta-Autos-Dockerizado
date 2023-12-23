@@ -5,6 +5,9 @@ var models = require("../models");
 var cuenta = models.cuenta;
 var rol = models.rol;
 let jwt = require("jsonwebtoken");
+
+var bcrypt = require("bcrypt");
+
 class CuentaControl {
   async inicio_sesion(req, res) {
     if (req.body.hasOwnProperty("correo") && req.body.hasOwnProperty("clave")) {
@@ -12,8 +15,8 @@ class CuentaControl {
         where: { correo: req.body.correo },
         include: [
           {
-            model: models.persona,
-            as: "persona",
+            model: models.personal,
+            as: "personal",
             attributes: ["apellidos", "nombres"],
           },
         ],
@@ -23,7 +26,12 @@ class CuentaControl {
         res.json({ msg: "ERROR", tag: "Cuenta no existe", code: 400 });
       } else {
         if (cuentaA.estado == true) {
-          if (cuentaA.clave === req.body.clave) {
+          const claveCifrada = await bcrypt.compare(
+            req.body.clave,
+            cuentaA.clave
+          );
+
+          if (claveCifrada) {
             //TODO mandar rol
             const token_data = {
               external: cuentaA.external_id,
@@ -36,7 +44,7 @@ class CuentaControl {
             });
             var info = {
               token: token,
-              user: cuentaA.persona.apellidos + " " + cuentaA.persona.nombres,
+              user: cuentaA.personal.apellidos + " " + cuentaA.personal.nombres,
             };
             res.status(200);
             res.json({
