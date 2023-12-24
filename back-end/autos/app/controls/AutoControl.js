@@ -257,7 +257,6 @@ class AutoControl {
       }
 
       var uuid = require("uuid");
-      var perA = autoModificar.persona;
 
       // Actualizar los campos si se proporcionan en la solicitud
       if (

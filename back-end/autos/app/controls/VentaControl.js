@@ -1,6 +1,5 @@
 "use strict";
 
-var fs = require("fs");
 var models = require("../models");
 var personal = models.personal;
 var comprador = models.comprador;
@@ -9,17 +8,21 @@ var venta = models.venta;
 
 class VentaControl {
   async listar(req, res) {
-    var lista = await auto.findAll({
-      attributes: [
-        "marca",
-        ["external_id", "id"],
-        "modelo",
-        "archivo",
-        "anio",
-        "color",
-        "precio",
-        "estado",
+    var lista = await venta.findAll({
+      include: [
+        {
+          model: models.comprador,
+          as: "comprador",
+          attributes: ["external_id", "id"],
+        },
+        {
+          model: models.personal,
+          as: "personal",
+          attributes: ["external_id", "id"],
+        },
+        { model: models.auto, as: "auto", attributes: ["external_id", "id"] },
       ],
+      attributes: ["recargo", ["external_id", "id"], "precioTotal"],
     });
     res.status(200);
     res.json({ msg: "OK", code: 200, datos: lista });
@@ -27,18 +30,16 @@ class VentaControl {
 
   async obtener(req, res) {
     const external = req.params.external;
-    var lista = await auto.findOne({
+    var lista = await venta.findOne({
       where: { external_id: external },
 
       attributes: [
-        "marca",
+        "recargo",
         ["external_id", "id"],
-        "modelo",
-        "archivo",
-        "anio",
-        "color",
-        "precio",
-        "estado",
+        "precioTotal",
+        "auto",
+        "comprador",
+        "personal",
       ],
     });
     if (lista === undefined || lista == null) {
@@ -56,7 +57,6 @@ class VentaControl {
     if (
       req.body.hasOwnProperty("recargo") &&
       req.body.hasOwnProperty("precioTotal") &&
-      //req.body.hasOwnProperty("fecha") &&
       req.body.hasOwnProperty("auto") &&
       req.body.hasOwnProperty("comprador") &&
       req.body.hasOwnProperty("personal")
@@ -90,7 +90,9 @@ class VentaControl {
           id_auto: autoA.id,
           id_comprador: compradorA.id,
           id_personal: perA.id,
-
+          auto: {
+            estado: false,
+          },
         };
         if (perA.rol.nombre == "gerente") {
           var result = await venta.create(data);
@@ -127,7 +129,7 @@ class VentaControl {
       res.status(400);
       res.json({
         msg: "ERROR",
-        tag: "Falta el auto a modificar, por favor ingresar su id",
+        tag: "Falta la venta a modificar, por favor ingresar su id",
         code: 400,
       });
       return;
@@ -138,38 +140,47 @@ class VentaControl {
       // Iniciar transacción
       transaction = await models.sequelize.transaction();
 
-      // Buscar el auto a modificar
-      let autoModificar = await auto.findOne({
+      // Buscar la venta a modificar
+      let ventaModificar = await venta.findOne({
         where: { external_id: external },
         transaction,
       });
 
       // Verificar si el Auto existe
-      if (!autoModificar) {
+      if (!ventaModificar) {
         res.status(404);
-        res.json({ msg: "ERROR", tag: "Auto no encontrado", code: 404 });
+        res.json({ msg: "ERROR", tag: "Venta no encontrada", code: 404 });
         return;
       }
 
       var uuid = require("uuid");
-      var perA = autoModificar.persona;
+
+      var perA = await personal.findOne({
+        where: { external_id: req.body.personal },
+        include: [{ model: models.rol, as: "rol", attributes: ["nombre"] }],
+      });
+
+      var autoA = await auto.findOne({
+        where: { external_id: req.body.auto },
+      });
+
+      var compradorA = await comprador.findOne({
+        where: { external_id: req.body.comprador },
+      });
 
       // Actualizar los campos si se proporcionan en la solicitud
       if (
-        req.body.hasOwnProperty("marca") &&
-        req.body.hasOwnProperty("modelo") &&
-        req.body.hasOwnProperty("anio") &&
-        req.body.hasOwnProperty("color") &&
-        req.body.hasOwnProperty("precio") &&
-        req.body.hasOwnProperty("estado")
+        req.body.hasOwnProperty("recargo") &&
+        req.body.hasOwnProperty("precioTotal") &&
+        req.body.hasOwnProperty("auto") &&
+        req.body.hasOwnProperty("comprador") &&
+        req.body.hasOwnProperty("personal")
       ) {
-        autoModificar.marca = req.body.marca;
-        autoModificar.modelo = req.body.modelo;
-        autoModificar.anio = req.body.anio;
-        autoModificar.color = req.body.color;
-        autoModificar.precio = req.body.precio;
-        autoModificar.external_id = uuid.v4();
-        autoModificar.estado = req.body.estado;
+        ventaModificar.recargo = req.body.recargo;
+        ventaModificar.precioTotal = req.body.precioTotal;
+        ventaModificar.id_auto = autoA.id;
+        ventaModificar.id_comprador = compradorA.id;
+        ventaModificar.id_personal = perA.id;
       } else {
         res.status(400);
         res.json({ msg: "ERROR", tag: "Faltan datos", code: 400 });
@@ -177,7 +188,7 @@ class VentaControl {
       }
 
       // Guardar los cambios y confirmar la transacción
-      await autoModificar.save({ transaction });
+      await ventaModificar.save({ transaction });
       await transaction.commit();
 
       res.status(200);

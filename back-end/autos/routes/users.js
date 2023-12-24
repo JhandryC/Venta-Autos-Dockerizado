@@ -122,10 +122,10 @@ router.put("/admin/auto/modificar/:external", autoControl.modificar);
 router.post("/admin/auto/file/save/:external", autoControl.guardarFoto);
 
 //VENTA
-router.get("/autos", autoControl.listar);
+router.get("/venta", ventaControl.listar);
 router.get("/autos/get/:external", autoControl.obtener);
 router.post("/admin/venta/save", ventaControl.guardar);
-router.put("/admin/auto/modificar/:external", autoControl.modificar);
-router.post("/admin/auto/file/save/:external", autoControl.guardarFoto);
+router.put("/admin/venta/modificar/:external", ventaControl.modificar);
+
 
 module.exports = router;
