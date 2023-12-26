@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   const venta = sequelize.define(
     "venta",
     {
-      recargo: { type: DataTypes.DOUBLE, defaultValue: 0 },
+      recargo: { type: DataTypes.BOOLEAN, defaultValue: false },
       precioTotal: { type: DataTypes.DOUBLE, defaultValue: 0 },
       fecha: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
       external_id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 },

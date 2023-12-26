@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     comprador.hasMany(models.venta, {
       foreignKey: "id_comprador",
       as: "venta",
-    });
+    }); 
   };
   return comprador;
 };

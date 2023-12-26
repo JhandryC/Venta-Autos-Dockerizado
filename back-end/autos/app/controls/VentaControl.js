@@ -13,14 +13,18 @@ class VentaControl {
         {
           model: models.comprador,
           as: "comprador",
-          attributes: ["external_id", "id"],
+          attributes: ["apellidos", "nombres", "identificacion"],
         },
         {
           model: models.personal,
           as: "personal",
-          attributes: ["external_id", "id"],
+          attributes: ["apellidos", "nombres"],
         },
-        { model: models.auto, as: "auto", attributes: ["external_id", "id"] },
+        {
+          model: models.auto,
+          as: "auto",
+          attributes: ["marca", "modelo", "color", "precio"],
+        },
       ],
       attributes: ["recargo", ["external_id", "id"], "precioTotal"],
     });
@@ -53,10 +57,9 @@ class VentaControl {
     res.json({ msg: "OK", code: 200, datos: lista });
   }
 
+  //GUARDAR VENTA
   async guardar(req, res) {
     if (
-      req.body.hasOwnProperty("recargo") &&
-      req.body.hasOwnProperty("precioTotal") &&
       req.body.hasOwnProperty("auto") &&
       req.body.hasOwnProperty("comprador") &&
       req.body.hasOwnProperty("personal")
@@ -83,33 +86,54 @@ class VentaControl {
           code: 401,
         });
       } else {
-        var data = {
-          external_id: uuid.v4(),
-          recargo: req.body.recargo,
-          precioTotal: req.body.precioTotal,
-          id_auto: autoA.id,
-          id_comprador: compradorA.id,
-          id_personal: perA.id,
-          auto: {
-            estado: false,
-          },
-        };
-        if (perA.rol.nombre == "gerente") {
-          var result = await venta.create(data);
-          if (result === null) {
-            res.status(401);
-            res.json({ msg: "Error", tag: "No se puede crear", code: 401 });
+        if (autoA.estado === true) {
+          if (autoA.color === "BLANCO" || autoA.color === "PLATA") {
+            var data = {
+              recargo: false,
+              precioTotal: autoA.precio,
+              external_id: uuid.v4(),
+              id_auto: autoA.id,
+              id_comprador: compradorA.id,
+              id_personal: perA.id,
+            };
           } else {
-            perA.external_id = uuid.v4();
-            await perA.save();
-            res.status(200);
-            res.json({ msg: "OK", code: 200 });
+            var valorRecargo = autoA.precio * 0.05;
+            var data = {
+              recargo: true,
+              precioTotal: autoA.precio + valorRecargo,
+              external_id: uuid.v4(),
+              id_auto: autoA.id,
+              id_comprador: compradorA.id,
+              id_personal: perA.id,
+            };
+          }
+
+          if (perA.rol.nombre == "gerente" || perA.rol.nombre == "vendedor") {
+            var result = await venta.create(data);
+            autoA.estado = false;
+            if (result === null) {
+              res.status(401);
+              res.json({ msg: "Error", tag: "No se puede crear", code: 401 });
+            } else {
+              perA.external_id = uuid.v4();
+              await perA.save();
+              await autoA.save();
+              res.status(200);
+              res.json({ msg: "OK", code: 200 });
+            }
+          } else {
+            res.status(400);
+            res.json({
+              msg: "ERROR",
+              tag: "Solo el personal puede registrar una venta",
+              code: 400,
+            });
           }
         } else {
           res.status(400);
           res.json({
             msg: "ERROR",
-            tag: "Solo el personal puede registrar una venta",
+            tag: "El auto no esta disponible",
             code: 400,
           });
         }
