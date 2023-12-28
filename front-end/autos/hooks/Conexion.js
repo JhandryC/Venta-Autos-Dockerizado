@@ -1,4 +1,4 @@
-let URL = "https://computacion.unl.edu.ec/pdml/examen1/";
+let URL = "http://localhost:3000/api/";
 export function url_api() {
   return URL;
 }
@@ -11,6 +11,7 @@ export async function obtener(recurso) {
 export async function enviar(recurso, data) {
   const headers = {
     Accept: "application/json",
+    "Content-Type": "application/json",
   };
 
   const response = await fetch(URL + recurso, {
@@ -24,11 +25,11 @@ export async function enviar(recurso, data) {
   return responseData;
 }
 
-export async function obtenerNinos(recurso, token) {
+export async function obtenerAutos(recurso, token) {
   const headers = {
     Accept: "application/json",
     "Content-type": "application/json",
-    "TEST-KEY": token,
+    "auto-token": token,
   };
   const response = await fetch(URL + recurso, {
     cache: "no-store",
@@ -39,7 +40,7 @@ export async function obtenerNinos(recurso, token) {
   return responseData;
 }
 
-export async function obtenerNinosCensados(recurso, token) {
+export async function obtenerComprador(recurso, token) {
   const headers = {
     Accept: "application/json",
     "Content-type": "application/json",
@@ -52,10 +53,7 @@ export async function obtenerNinosCensados(recurso, token) {
   });
 
   const responseData = await response.json();
-
-  if (responseData.code === 200) return responseData.info;
-
-  throw new Error(responseData.message);
+  return responseData;
 }
 
 export async function crearCenso(recurso, data, token) {

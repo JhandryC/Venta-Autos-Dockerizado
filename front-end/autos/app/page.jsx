@@ -11,10 +11,9 @@ export default function Home() {
   const router = useRouter();
   //validaciones
   const validationShema = Yup.object().shape({
-    email: Yup.string()
-      .required("Ingrese su correo institucional")
-      .email("Se requiere correo valido"),
-    password: Yup.string().required("Ingrese su cedula"),
+    correo: Yup.string()
+      .required("Ingrese su correo"),
+    clave: Yup.string().required("Ingrese su clave"),
   });
 
   const formOptions = { resolver: yupResolver(validationShema) };
@@ -23,9 +22,8 @@ export default function Home() {
 
   const sendData = (data) => {
     var data = {
-      resource: "login",
-      email: data.email,
-      password: data.password,
+      correo: data.correo,
+      clave: data.clave,
     };
     inicio_sesion(data).then((info) => {
       console.log(info);
@@ -35,7 +33,7 @@ export default function Home() {
       } else {
         //JOption
         mensajes("Has ingresado al sistema!", "Bienvenido", "success");
-        router.push("/censos");
+        router.push("/autos");
       }
     });
   };
@@ -62,32 +60,32 @@ export default function Home() {
 
                       <div className="form-outline form-white mb-4">
                         <input
-                          {...register("email")}
-                          name="email"
-                          id="email"
+                          {...register("correo")}
+                          name="correo"
+                          id="correo"
                           className={`form-control ${
-                            errors.email ? "is-invalid" : ""
+                            errors.correo ? "is-invalid" : ""
                           }`}
                         />
-                        <label className="form-label">Email</label>
+                        <label className="form-label">Correo</label>
                         <div className="alert alert-danger invalid-feedback">
-                          {errors.email?.message}
+                          {errors.correo?.message}
                         </div>
                       </div>
 
                       <div className="form-outline form-white mb-4">
                         <input
-                          {...register("password")}
-                          name="password"
+                          {...register("clave")}
+                          name="clave"
                           type="password"
-                          id="password"
+                          id="clave"
                           className={`form-control ${
-                            errors.password ? "is-invalid" : ""
+                            errors.clave ? "is-invalid" : ""
                           }`}
                         />
                         <label className="form-label">Contraseña</label>
                         <div className="alert alert-danger invalid-feedback">
-                          {errors.password?.message}
+                          {errors.clave?.message}
                         </div>
                       </div>
 
