@@ -124,7 +124,11 @@ router.put(
 
 //COMPRADOR
 router.get("/admin/comprador", authVendedor, compradorControl.listar);
-router.get("/admin/comprador/get/:external", authVendedor, compradorControl.obtener);
+router.get(
+  "/admin/comprador/get/:external",
+  authVendedor,
+  compradorControl.obtener
+);
 router.post("/admin/comprador/save", authVendedor, compradorControl.guardar);
 router.put(
   "/admin/comprador/modificar/:external",
@@ -136,13 +140,26 @@ router.put(
 router.get("/autos", authGerente, autoControl.listar);
 router.get("/autos/get/:external", authGerente, autoControl.obtener);
 router.post("/admin/auto/save", authGerente, autoControl.guardar);
-router.put("/admin/auto/modificar/:external", authGerente, autoControl.modificar);
-router.post("/admin/auto/file/save/:external", authGerente, autoControl.guardarFoto);
+router.put(
+  "/admin/auto/modificar/:external",
+  authGerente,
+  autoControl.modificar
+);
+router.post(
+  "/admin/auto/file/save/:external",
+  authGerente,
+  autoControl.guardarFoto
+);
+router.use("/multimedia", express.static("public/images"));
 
 //VENTA
 router.get("/venta", authVendedor, ventaControl.listar);
 router.get("/autos/get/:external", authVendedor, autoControl.obtener);
 router.post("/admin/venta/save", authVendedor, ventaControl.guardar);
-router.put("/admin/venta/modificar/:external", authVendedor, ventaControl.modificar);
+router.put(
+  "/admin/venta/modificar/:external",
+  authVendedor,
+  ventaControl.modificar
+);
 
 module.exports = router;
