@@ -137,7 +137,7 @@ router.put(
 );
 
 //AUTO
-router.get("/autos", authGerente, autoControl.listar);
+router.get("/autos", autoControl.listar);
 router.get("/autos/get/:external", authGerente, autoControl.obtener);
 router.post("/admin/auto/save", authGerente, autoControl.guardar);
 router.put(
@@ -150,7 +150,7 @@ router.post(
   authGerente,
   autoControl.guardarFoto
 );
-router.use("/multimedia", express.static("public/images"));
+router.use("/images", express.static("public/images"));
 
 //VENTA
 router.get("/venta", authVendedor, ventaControl.listar);

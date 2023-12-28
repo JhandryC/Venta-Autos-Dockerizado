@@ -40,6 +40,21 @@ export async function obtenerAutos(recurso, token) {
   return responseData;
 }
 
+export async function obtenerVenta(recurso, token) {
+  const headers = {
+    Accept: "application/json",
+    "Content-type": "application/json",
+    "auto-token": token,
+  };
+  const response = await fetch(URL + recurso, {
+    cache: "no-store",
+    method: "GET",
+    headers: headers,
+  });
+  const responseData = await response.json();
+  return responseData;
+}
+
 export async function obtenerComprador(recurso, token) {
   const headers = {
     Accept: "application/json",

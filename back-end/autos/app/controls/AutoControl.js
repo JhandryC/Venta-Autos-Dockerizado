@@ -59,53 +59,28 @@ class AutoControl {
       req.body.hasOwnProperty("modelo") &&
       req.body.hasOwnProperty("anio") &&
       req.body.hasOwnProperty("color") &&
-      req.body.hasOwnProperty("precio") &&
-      req.body.hasOwnProperty("personal")
+      req.body.hasOwnProperty("precio")
     ) {
       var uuid = require("uuid");
-      var perA = await personal.findOne({
-        where: { external_id: req.body.personal },
-        include: [{ model: models.rol, as: "rol", attributes: ["nombre"] }],
-      });
 
-      if (perA == undefined || perA == null) {
+      var data = {
+        marca: req.body.marca,
+        external_id: uuid.v4(),
+        modelo: req.body.modelo,
+        anio: req.body.anio,
+        color: req.body.color,
+        precio: req.body.precio,
+        estado: true,
+        archivo: "auto.png",
+      };
+
+      var result = await auto.create(data);
+      if (result === null) {
         res.status(401);
-        res.json({
-          msg: "ERROR",
-          tag: "El gerente a buscar no existe",
-          code: 401,
-        });
+        res.json({ msg: "Error", tag: "No se puede crear", code: 401 });
       } else {
-        var data = {
-          marca: req.body.marca,
-          external_id: uuid.v4(),
-          modelo: req.body.modelo,
-          anio: req.body.anio,
-          color: req.body.color,
-          precio: req.body.precio,
-          id_personal: perA.id,
-          estado: true,
-          archivo: "auto.png",
-        };
-        if (perA.rol.nombre == "gerente") {
-          var result = await auto.create(data);
-          if (result === null) {
-            res.status(401);
-            res.json({ msg: "Error", tag: "No se puede crear", code: 401 });
-          } else {
-            perA.external_id = uuid.v4();
-            await perA.save();
-            res.status(200);
-            res.json({ msg: "OK", code: 200 });
-          }
-        } else {
-          res.status(400);
-          res.json({
-            msg: "ERROR",
-            tag: "Solo los gerentes puede registrar un auto",
-            code: 400,
-          });
-        }
+        res.status(200);
+        res.json({ msg: "OK", code: 200 });
       }
     } else {
       res.status(400);
@@ -188,6 +163,12 @@ class AutoControl {
             ? autoModificar.archivo.split(",")
             : [];
 
+          // Eliminar la imagen por defecto si existe
+          const defaultImageIndex = existingImages.indexOf("auto.png");
+          if (defaultImageIndex !== -1) {
+            existingImages.splice(defaultImageIndex, 1);
+          }
+
           let counter = 1;
           let name;
           do {
@@ -196,7 +177,7 @@ class AutoControl {
           } while (existingImages.includes(name));
 
           // Verificar el límite de 3 imágenes
-          if (existingImages.length >= 4) {
+          if (existingImages.length >= 3) {
             res.status(400);
             res.json({
               msg: "ERROR",
@@ -210,9 +191,13 @@ class AutoControl {
             file.filepath,
             "public/images/" + name,
             async function (err) {
-              autoModificar.archivo = autoModificar.archivo
-                ? autoModificar.archivo + "," + name
-                : name;
+              existingImages.push(name);
+
+              // Reemplazar la cadena existente con los nuevos nombres de archivo
+              autoModificar.archivo =
+                existingImages.length > 0
+                  ? existingImages.join(",")
+                  : "auto.png"; // Si no hay nuevas imágenes, se establece la imagen por defecto
 
               await autoModificar.save();
               res.status(200);

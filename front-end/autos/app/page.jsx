@@ -11,8 +11,7 @@ export default function Home() {
   const router = useRouter();
   //validaciones
   const validationShema = Yup.object().shape({
-    correo: Yup.string()
-      .required("Ingrese su correo"),
+    correo: Yup.string().required("Ingrese su correo"),
     clave: Yup.string().required("Ingrese su clave"),
   });
 

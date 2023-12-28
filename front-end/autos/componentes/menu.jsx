@@ -19,38 +19,20 @@ export default function Menu() {
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
                 <Link
-                  href="/censos"
+                  href="/autos"
                   className="nav-link active"
                   aria-current="page"
                 >
-                  Censos
+                  Autos
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  href="/ninos"
+                  href="/ventas"
                   className="nav-link active"
                   aria-current="page"
                 >
-                  Niños
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  href="/cursos"
-                  className="nav-link active"
-                  aria-current="page"
-                >
-                  Cursos
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  href="/escuela"
-                  className="nav-link active"
-                  aria-current="page"
-                >
-                  Escuelas
+                  Ventas
                 </Link>
               </li>
             </ul>
