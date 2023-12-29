@@ -4,70 +4,96 @@ import Link from "next/link";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import { guardarAuto } from "@/hooks/Autenticacion";
+import { useRouter, useParams } from "next/navigation";
+import { modificarAuto } from "@/hooks/Autenticacion";
+import { obtenerAutos, actualizarAuto } from "@/hooks/Conexion";
+import { getToken } from "@/hooks/SessionUtil";
 import { useEffect, useState } from "react";
 import mensajes from "@/componentes/Mensajes";
 
-export default function AgregarAuto() {
+export default function EditarAuto() {
   const router = useRouter();
+  const token = getToken();
+  const { external } = useParams();
+  const [colores, setColores] = useState([]);
+  const [selectedColor, setSelectedColor] = useState("");
+
+  useEffect(() => {
+    const obtenerColores = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/colores");
+
+        if (!response.ok) {
+          throw new Error(
+            `Error al obtener colores: ${response.status} - ${response.statusText}`
+          );
+        }
+
+        const data = await response.json();
+        setColores(data.colores);
+        setSelectedColor(data.colores[0] || "");
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+
+    const obtenerUnAuto = async () => {
+      const response = await obtenerAutos("/autos/get/" + external, token);
+
+      if (response.msg === "OK") {
+        const autoData = response.datos;
+
+        reset({
+          marca: autoData.marca,
+          modelo: autoData.modelo,
+          precio: autoData.precio,
+          anio: autoData.anio,
+          color: autoData.color,
+          estado: autoData.estado ? "Disponible" : "No Disponible",
+        });
+        setSelectedColor(autoData.color || "");
+      } else {
+        console.error("Error fetching auto data:", response);
+      }
+    };
+
+    obtenerColores();
+    obtenerUnAuto();
+  }, []);
 
   // Validaciones
   const validationSchema = Yup.object().shape({
     marca: Yup.string().required("Ingrese la marca del auto"),
     modelo: Yup.string().required("Ingrese el modelo del auto"),
     precio: Yup.string().required("Ingrese el valor del auto"),
-    anio: Yup.string().required("Ingrese el anio del auto"),
+    anio: Yup.string().required("Ingrese el año del auto"),
     color: Yup.string().required("Seleccione un color"),
+    estado: Yup.string().required("Seleccione un estado"),
   });
 
   const formOptions = { resolver: yupResolver(validationSchema) };
-  const { register, handleSubmit, formState } = useForm(formOptions);
+  const { register, handleSubmit, formState, reset, setValue, watch } =
+    useForm(formOptions);
   let { errors } = formState;
 
-  const [colores, setColores] = useState([]);
-  const [selectedColor, setSelectedColor] = useState("");
+  const estadoValue = watch("estado");
 
-  const obtenerColores = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/api/colores");
-
-      if (!response.ok) {
-        throw new Error(
-          `Error al obtener colores: ${response.status} - ${response.statusText}`
-        );
-      }
-
-      const data = await response.json();
-      setColores(data.colores);
-      setSelectedColor(data.colores[0] || "");
-    } catch (error) {
-      console.error(error.message);
-    }
-  };
-
-  useEffect(() => {
-    obtenerColores();
-  }, []);
-
-  const sendData = async (data) => {
-    console.log(data);
+  const sendData = (formData) => {
     var dato = {
-      marca: data.marca,
-      modelo: data.modelo,
-      precio: data.precio,
-      anio: data.anio,
+      marca: formData.marca,
+      modelo: formData.modelo,
+      precio: formData.precio,
+      anio: formData.anio,
+      estado: formData.estado === "Disponible", // Convertir a booleano
       color: selectedColor,
     };
 
-    console.log(dato);
-    guardarAuto(dato).then((info) => {
-      console.log(info);
-
-      mensajes("Auto agregado correctamente", "OK", "success");
-
-      router.push("/autos");
-    });
+    actualizarAuto("admin/auto/modificar/" + external, dato, token).then(
+      (info) => {
+        mensajes("Auto modificado correctamente", "OK", "success");
+        router.push("/autos");
+      }
+    );
   };
 
   return (
@@ -111,7 +137,6 @@ export default function AgregarAuto() {
                   {errors.modelo?.message}
                 </div>
               </div>
-
               <div className="form-outline form-white mb-4">
                 <label className="form-label">Precio</label>
                 <input
@@ -126,7 +151,6 @@ export default function AgregarAuto() {
                   {errors.precio?.message}
                 </div>
               </div>
-
               <div className="form-outline form-white mb-4">
                 <label className="form-label">Año</label>
                 <input
@@ -139,7 +163,6 @@ export default function AgregarAuto() {
                   {errors.anio?.message}
                 </div>
               </div>
-
               <div className="form-outline form-white mb-4">
                 <label className="form-label">Color</label>
                 <select
@@ -161,10 +184,34 @@ export default function AgregarAuto() {
                   {errors.color?.message}
                 </div>
               </div>
+              <div className="form-outline form-white mb-4">
+                <label className="form-label">Estado</label>
+
+                <select
+                  {...register("estado")}
+                  value={estadoValue ? "Disponible" : "No Disponible"}
+                  onChange={(e) => {
+                   
+                    const newState = e.target.value === "Disponible";
+                    setValue("estado", newState);
+                  }}
+                  
+                  className={`form-control ${
+                    errors.estado ? "is-invalid" : ""
+                  }`}
+                >
+                  <option value="Disponible">Disponible</option>
+                  <option value="No Disponible">No Disponible</option>
+                </select>
+
+                <div className="alert alert-danger invalid-feedback">
+                  {errors.estado?.message}
+                </div>
+              </div>
 
               <div>
                 <button type="submit" className="btn btn-success">
-                  Agregar
+                  Guardar cambios
                 </button>
                 <Link href="/autos" className="btn btn-danger">
                   Volver
@@ -177,4 +224,3 @@ export default function AgregarAuto() {
     </div>
   );
 }
-

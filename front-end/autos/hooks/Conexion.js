@@ -58,7 +58,6 @@ export async function obtenerComprador(recurso, token) {
 
 export async function obtenerAutos(recurso, token) {
   const headers = {
-    Accept: "application/json",
     "Content-type": "application/json",
     "auto-token": token,
   };
@@ -94,12 +93,9 @@ export async function crearAuto(recurso, data, token) {
 
 export async function actualizarAuto(recurso, data, token) {
   const headers = {
-    Accept: "application/json",
     "Content-type": "application/json",
     "auto-token": token,
   };
-
-  data.resource = "updateAuto";
 
   const response = await fetch(URL + recurso, {
     cache: "no-store",
@@ -109,8 +105,5 @@ export async function actualizarAuto(recurso, data, token) {
   });
 
   const responseData = await response.json();
-
-  if (responseData.code === 200) return responseData.info;
-
-  throw new Error(responseData.message);
+  return responseData;
 }

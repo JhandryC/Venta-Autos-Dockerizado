@@ -5,7 +5,7 @@ import { getToken, getId, getRol } from "@/hooks/SessionUtil";
 import Link from "next/link";
 import { Carousel } from "react-bootstrap";
 
-const ObtenerAuto = () => {
+const ObtenerAutos = () => {
   const [respuesta, setRespuesta] = useState([]);
   const rol = getRol();
 
@@ -53,10 +53,16 @@ const ObtenerAuto = () => {
                   </h5>
                   <p>Precio: ${dato.precio}</p>
                   <p>Color: {dato.color}</p>
-                  <p>Estado: {dato.estado ? "Disponible" : "No disponible"}</p>
+                  <p>Año: {dato.anio}</p>
+
                   {rol === "gerente" && (
                     <div>
-                      <a className="btn btn-primary btn-sm">Modificar</a>
+                      <Link
+                        href={"autos/actualizarAutos/" + dato.id}
+                        className="btn btn-primary btn-sm"
+                      >
+                        Modificar
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -112,4 +118,4 @@ const ObtenerAuto = () => {
   );
 };
 
-export default ObtenerAuto;
+export default ObtenerAutos;

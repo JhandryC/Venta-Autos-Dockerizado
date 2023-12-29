@@ -43,14 +43,12 @@ class AutoControl {
       ],
     });
     if (lista === undefined || lista == null) {
-      res.status(200);
-      res.json({ msg: "OK", code: 200, datos: {} });
+      res.status(404);
+      res.json({ msg: "Error", tag:"Auto no encontrado",code: 404, datos: {} });
     } else {
       res.status(200);
       res.json({ msg: "OK", code: 200, datos: lista });
     }
-    res.status(200);
-    res.json({ msg: "OK", code: 200, datos: lista });
   }
 
   async guardar(req, res) {

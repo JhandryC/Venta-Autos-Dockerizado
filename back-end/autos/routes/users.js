@@ -138,7 +138,7 @@ router.put(
 
 //AUTO
 router.get("/autos", autoControl.listar);
-router.get("/autos/get/:external", authGerente, autoControl.obtener);
+router.get("/autos/get/:external", autoControl.obtener);
 router.post("/admin/auto/save", authGerente, autoControl.guardar);
 router.put(
   "/admin/auto/modificar/:external",
