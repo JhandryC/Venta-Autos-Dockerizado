@@ -2,6 +2,7 @@
 
 var models = require("../models");
 var cuenta = models.cuenta;
+var rol = models.rol;
 let jwt = require("jsonwebtoken");
 
 var bcrypt = require("bcrypt");
@@ -15,7 +16,7 @@ class CuentaControl {
           {
             model: models.personal,
             as: "personal",
-            attributes: ["apellidos", "nombres"],
+            attributes: ["apellidos", "external_id", "nombres", "id_rol"],
           },
         ],
       });
@@ -31,8 +32,12 @@ class CuentaControl {
 
           if (claveCifrada) {
             //TODO mandar rol
+            var rolAux = await rol.findOne({
+              where: { id: cuentaA.personal.id_rol },
+            });
             const token_data = {
               external: cuentaA.external_id,
+              rol: rolAux.nombre,
               check: true,
             };
             require("dotenv").config();
@@ -43,6 +48,8 @@ class CuentaControl {
             var info = {
               token: token,
               user: cuentaA.personal.apellidos + " " + cuentaA.personal.nombres,
+              external_id: cuentaA.personal.external_id,
+              rol: rolAux.nombre,
             };
             res.status(200);
             res.json({

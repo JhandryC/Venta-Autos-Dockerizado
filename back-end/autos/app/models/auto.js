@@ -31,5 +31,9 @@ module.exports = (sequelize, DataTypes) => {
       as: "venta",
     });
   };
+
+  auto.getColoresDisponibles = function () {
+    return auto.rawAttributes.color.values;
+  };
   return auto;
 };

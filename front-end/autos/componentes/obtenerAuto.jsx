@@ -1,18 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
 import { obtenerAutos } from "@/hooks/Conexion";
-import { getToken, getId } from "@/hooks/SessionUtil";
+import { getToken, getId, getRol } from "@/hooks/SessionUtil";
 import Link from "next/link";
+import { Carousel } from "react-bootstrap";
 
 const ObtenerAuto = () => {
   const [respuesta, setRespuesta] = useState([]);
+  const rol = getRol();
 
   useEffect(() => {
     const fetchData = async () => {
       const token = getToken();
       console.log(token);
       const response = await obtenerAutos("autos", token);
-      console.log(response);
       setRespuesta(response.datos);
     };
 
@@ -27,43 +28,86 @@ const ObtenerAuto = () => {
 
   return (
     <div>
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Precio</th>
-            <th>Color</th>
-            <th>Estado</th>
-            <th>Auto</th>
-            <th>Auto</th>
-          </tr>
-        </thead>
-        <tbody>
+      {rol === "gerente" && (
+        <div
+          style={{
+            position: "relative",
+            paddingTop: "10px",
+            paddingBottom: "10px",
+          }}
+        >
+          <Link href={"/autos/agregarAuto"} className="btn btn-warning">
+            Agregar Auto
+          </Link>
+        </div>
+      )}
+
+      <div style={{ display: "flex" }}>
+        <div style={{ flex: 1 }}>
+          <div className="list-group">
+            {respuesta.map((dato, i) => (
+              <div key={i} className="list-group-item">
+                <div className="content">
+                  <h5>
+                    {dato.marca} - {dato.modelo}
+                  </h5>
+                  <p>Precio: ${dato.precio}</p>
+                  <p>Color: {dato.color}</p>
+                  <p>Estado: {dato.estado ? "Disponible" : "No disponible"}</p>
+                  {rol === "gerente" && (
+                    <div>
+                      <a className="btn btn-primary btn-sm">Modificar</a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ flex: 1, position: "relative" }}>
           {respuesta.map((dato, i) => (
-            <tr key={i}>
-              <td>{dato.marca}</td>
-              <td>{dato.modelo}</td>
-              <td>{dato.precio}</td>
-              <td>{dato.color}</td>
-              <td>{dato.estado ? "Disponible" : "No disponible"}</td>
-              <td>
+            <div key={i} className="list-group-item">
+              <Carousel interval={2000} className="custom-carousel">
                 {dato.archivo.split(",").map((nombreArchivo, index) => (
-                  <img
-                    key={index}
-                    src={`http://localhost:3000/images/${nombreArchivo}`}
-                    style={{ width: "100px", marginRight: "5px" }}
-                    alt={nombreArchivo}
-                  />
+                  <Carousel.Item key={index}>
+                    <img
+                      className="d-block w-100 custom-carousel-image"
+                      src={`http://localhost:3000/images/${nombreArchivo}`}
+                      alt={nombreArchivo}
+                    />
+                  </Carousel.Item>
                 ))}
-              </td>
-              <td>
-                <btn >Modificar</btn>
-              </td>
-            </tr>
+              </Carousel>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .custom-carousel {
+          max-height: 200px;
+        }
+
+        .custom-carousel-image {
+          max-height: 200px;
+          object-fit: contain;
+        }
+
+        .list-group {
+          display: flex;
+          flex-wrap: wrap;
+        }
+
+        .list-group-item {
+          flex: 0 0 48%;
+          margin: 1%;
+        }
+
+        .content {
+          padding-right: 20px;
+        }
+      `}</style>
     </div>
   );
 };

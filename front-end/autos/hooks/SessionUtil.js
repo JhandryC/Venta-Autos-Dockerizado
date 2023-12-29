@@ -6,16 +6,8 @@ export const get = (key) => {
   sessionStorage.getItem(key);
 };
 
-export const getId = () => {
-  return sessionStorage.getItem("id");
-};
-
-export const getRol = () => {
-  return sessionStorage.getItem("rol ");
-};
-
-export const getExternalId = () => {
-  return sessionStorage.getItem("external_id");
+export const saveToken = (key) => {
+  sessionStorage.setItem("token", key);
 };
 
 export const getToken = () => {
@@ -30,10 +22,6 @@ export const getUser = () => {
   return user;
 };
 
-export const saveToken = (key) => {
-  sessionStorage.setItem("token", key);
-};
-
 export const borrarSesion = () => {
   sessionStorage.clear();
 };
@@ -41,4 +29,19 @@ export const borrarSesion = () => {
 export const estaSesion = () => {
   var token = sessionStorage.getItem("token");
   return token && (token != "undefined" || token != null || token != "null");
+};
+
+export const getId = () => {
+  return sessionStorage.getItem("id");
+};
+
+export const getRol = () => {
+  if (typeof window !== "undefined") {
+    return sessionStorage.getItem("rol");
+  }
+  return null;
+};
+
+export const getExternalId = () => {
+  return sessionStorage.getItem("external_id");
 };

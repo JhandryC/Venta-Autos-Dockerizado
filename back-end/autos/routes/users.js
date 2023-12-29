@@ -152,6 +152,27 @@ router.post(
 );
 router.use("/images", express.static("public/images"));
 
+router.get("/colores", async function (req, res) {
+  try {
+    const models = require("../app/models");
+    const auto = models.auto;
+
+    const coloresDisponibles = auto.getColoresDisponibles();
+
+    res.status(200).json({
+      msg: "OK",
+      colores: coloresDisponibles,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      msg: "ERROR",
+      tag: "Error al obtener los colores",
+      code: 500,
+    });
+  }
+});
+
 //VENTA
 router.get("/venta", authVendedor, ventaControl.listar);
 router.get("/autos/get/:external", authVendedor, autoControl.obtener);

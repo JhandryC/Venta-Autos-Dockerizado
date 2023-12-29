@@ -25,21 +25,6 @@ export async function enviar(recurso, data) {
   return responseData;
 }
 
-export async function obtenerAutos(recurso, token) {
-  const headers = {
-    Accept: "application/json",
-    "Content-type": "application/json",
-    "auto-token": token,
-  };
-  const response = await fetch(URL + recurso, {
-    cache: "no-store",
-    method: "GET",
-    headers: headers,
-  });
-  const responseData = await response.json();
-  return responseData;
-}
-
 export async function obtenerVenta(recurso, token) {
   const headers = {
     Accept: "application/json",
@@ -59,7 +44,7 @@ export async function obtenerComprador(recurso, token) {
   const headers = {
     Accept: "application/json",
     "Content-type": "application/json",
-    "TEST-KEY": token,
+    "auto-token": token,
   };
   const response = await fetch(URL + recurso, {
     cache: "no-store",
@@ -71,22 +56,35 @@ export async function obtenerComprador(recurso, token) {
   return responseData;
 }
 
-export async function crearCenso(recurso, data, token) {
+export async function obtenerAutos(recurso, token) {
   const headers = {
     Accept: "application/json",
     "Content-type": "application/json",
-    "TEST-KEY": token,
+    "auto-token": token,
   };
-
-  data.resource = "saveCensus";
-
   const response = await fetch(URL + recurso, {
     cache: "no-store",
+    method: "GET",
+    headers: headers,
+  });
+  const responseData = await response.json();
+  return responseData;
+}
+
+export async function crearAuto(recurso, data, token) {
+  const headers = {
+    Accept: "application/json",
+    "Content-type": "application/json",
+    "auto-token": token,
+  };
+
+  data.resource = "saveAuto";
+
+  const response = await fetch(URL + recurso, {
     method: "POST",
     headers: headers,
     body: JSON.stringify(data),
   });
-
   const responseData = await response.json();
 
   if (responseData.code === 200) return responseData.info;
@@ -94,18 +92,18 @@ export async function crearCenso(recurso, data, token) {
   throw new Error(responseData.message);
 }
 
-export async function actualizarCenso(recurso, data, token) {
+export async function actualizarAuto(recurso, data, token) {
   const headers = {
     Accept: "application/json",
     "Content-type": "application/json",
-    "TEST-KEY": token,
+    "auto-token": token,
   };
 
-  data.resource = "updateCensus";
+  data.resource = "updateAuto";
 
   const response = await fetch(URL + recurso, {
     cache: "no-store",
-    method: "POST",
+    method: "PUT",
     headers: headers,
     body: JSON.stringify(data),
   });
