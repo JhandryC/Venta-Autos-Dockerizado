@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { obtenerAutos } from "@/hooks/Conexion";
-import { getToken, getId, getRol } from "@/hooks/SessionUtil";
+import { getToken, getRol } from "@/hooks/SessionUtil";
 import Link from "next/link";
 import { Carousel } from "react-bootstrap";
 
@@ -56,12 +56,19 @@ const ObtenerAutos = () => {
                   <p>Año: {dato.anio}</p>
 
                   {rol === "gerente" && (
-                    <div>
+                    <div className="button-container">
                       <Link
                         href={"autos/actualizarAutos/" + dato.id}
                         className="btn btn-primary btn-sm"
                       >
                         Modificar
+                      </Link>
+
+                      <Link
+                        href={"autos/agregarImagen/" + dato.id}
+                        className="btn btn-primary btn-sm"
+                      >
+                        Agregar Imagen
                       </Link>
                     </div>
                   )}
@@ -112,6 +119,11 @@ const ObtenerAutos = () => {
 
         .content {
           padding-right: 20px;
+        }
+
+        .button-container {
+          display: flex;
+          gap: 5px;
         }
       `}</style>
     </div>

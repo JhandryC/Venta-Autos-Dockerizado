@@ -11,7 +11,7 @@ import { getToken } from "@/hooks/SessionUtil";
 import { useEffect, useState } from "react";
 import mensajes from "@/componentes/Mensajes";
 
-export default function EditarAuto() {
+export default function EditarVenta() {
   const router = useRouter();
   const token = getToken();
   const { external } = useParams();
@@ -247,7 +247,7 @@ export default function EditarAuto() {
                     <button type="submit" className="btn btn-success">
                       Guardar cambios
                     </button>
-                    <Link href="/autos" className="btn btn-danger">
+                    <Link href="/ventas" className="btn btn-danger">
                       Volver
                     </Link>
                   </div>

@@ -3,7 +3,7 @@ export const save = (key, data) => {
 };
 
 export const get = (key) => {
-  sessionStorage.getItem(key);
+  return sessionStorage.getItem(key);
 };
 
 export const saveToken = (key) => {
@@ -15,7 +15,7 @@ export const getToken = () => {
 };
 
 export const getUser = () => {
-  let user = sessionStorage.getItem("userData");
+  let user = sessionStorage.getItem("user");
 
   user = user ? JSON.parse(user) : null;
 
@@ -32,7 +32,10 @@ export const estaSesion = () => {
 };
 
 export const getId = () => {
-  return sessionStorage.getItem("id");
+  if (typeof window !== "undefined") {
+    return sessionStorage.getItem("id");
+  }
+  return null;
 };
 
 export const getRol = () => {
@@ -40,8 +43,4 @@ export const getRol = () => {
     return sessionStorage.getItem("rol");
   }
   return null;
-};
-
-export const getExternalId = () => {
-  return sessionStorage.getItem("external_id");
 };

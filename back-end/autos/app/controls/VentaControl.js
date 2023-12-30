@@ -26,7 +26,7 @@ class VentaControl {
           attributes: ["marca", "modelo", "color", "precio"],
         },
       ],
-      attributes: ["recargo", ["external_id", "id"], "precioTotal"],
+      attributes: ["recargo", "fecha", ["external_id", "id"], "precioTotal"],
     });
     res.status(200);
     res.json({ msg: "OK", code: 200, datos: lista });
@@ -53,8 +53,6 @@ class VentaControl {
       res.status(200);
       res.json({ msg: "OK", code: 200, datos: lista });
     }
-    res.status(200);
-    res.json({ msg: "OK", code: 200, datos: lista });
   }
 
   //GUARDAR VENTA

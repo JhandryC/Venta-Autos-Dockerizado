@@ -161,7 +161,6 @@ class AutoControl {
             ? autoModificar.archivo.split(",")
             : [];
 
-          // Eliminar la imagen por defecto si existe
           const defaultImageIndex = existingImages.indexOf("auto.png");
           if (defaultImageIndex !== -1) {
             existingImages.splice(defaultImageIndex, 1);

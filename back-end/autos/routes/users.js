@@ -26,8 +26,7 @@ router.get("/", function (req, res, next) {
   res.send("HOLA MUNDO");
 });
 
-//middleware
-const auth = function middleware(rolPermitido) {
+const auth = function middleware(rolesPermitidos) {
   return async function (req, res, next) {
     const token = req.headers["auto-token"];
 
@@ -76,15 +75,16 @@ const auth = function middleware(rolPermitido) {
             const rolAux = await rol.findOne({
               where: { id: aux.personal.id_rol },
             });
-            if (rolAux.nombre === rolPermitido) {
-              // El usuario tiene el rol correcto, se permite el acceso
+            if (rolesPermitidos.includes(rolAux.nombre)) {
+              // El usuario tiene uno de los roles permitidos, se permite el acceso
               next();
             } else {
               res.status(403);
               res.json({
                 msg: "ERROR",
                 tag:
-                  "Acceso no autorizado, se requiere el rol de " + rolPermitido,
+                  "Acceso no autorizado, se requiere uno de los roles: " +
+                  rolesPermitidos.join(", "),
                 code: 403,
               });
             }
@@ -98,6 +98,7 @@ const auth = function middleware(rolPermitido) {
   // next();
 };
 
+const authVendedorGerente = auth(["vendedor", "gerente"]);
 const authVendedor = auth("vendedor");
 const authGerente = auth("gerente");
 
@@ -123,16 +124,20 @@ router.put(
 );
 
 //COMPRADOR
-router.get("/admin/comprador", authVendedor, compradorControl.listar);
+router.get("/admin/comprador", compradorControl.listar);
 router.get(
   "/admin/comprador/get/:external",
-  authVendedor,
+  authVendedorGerente,
   compradorControl.obtener
 );
-router.post("/admin/comprador/save", authVendedor, compradorControl.guardar);
+router.post(
+  "/admin/comprador/save",
+  authVendedorGerente,
+  compradorControl.guardar
+);
 router.put(
   "/admin/comprador/modificar/:external",
-  authVendedor,
+  authVendedorGerente,
   compradorControl.modificar
 );
 
@@ -174,12 +179,12 @@ router.get("/colores", async function (req, res) {
 });
 
 //VENTA
-router.get("/venta", authVendedor, ventaControl.listar);
-router.get("/autos/get/:external", authVendedor, autoControl.obtener);
-router.post("/admin/venta/save", authVendedor, ventaControl.guardar);
+router.get("/venta", ventaControl.listar);
+router.get("/autos/get/:external", authVendedorGerente, autoControl.obtener);
+router.post("/admin/venta/save", authVendedorGerente, ventaControl.guardar);
 router.put(
   "/admin/venta/modificar/:external",
-  authVendedor,
+  authVendedorGerente,
   ventaControl.modificar
 );
 
