@@ -8,6 +8,22 @@ import Link from "next/link";
 const ObtenerVentas = () => {
   const [respuesta, setRespuesta] = useState([]);
   const [mesBuscado, setMesBuscado] = useState("");
+
+  const meses = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
   const rol = getRol();
 
   useEffect(() => {
@@ -36,14 +52,16 @@ const ObtenerVentas = () => {
       return respuesta;
     }
 
-    const mesBuscadoLowerCase = mesBuscado.toLowerCase();
+    const mesIndex = meses.findIndex(
+      (mes) => mes.toLowerCase() === mesBuscado.toLowerCase()
+    );
+    if (mesIndex === -1) {
+      return [];
+    }
+
     return respuesta.filter((venta) => {
-      const mesVenta = new Date(venta.fecha)
-        .toLocaleString("default", {
-          month: "long",
-        })
-        .toLowerCase();
-      return mesVenta.includes(mesBuscadoLowerCase);
+      const mesVenta = new Date(venta.fecha).getMonth();
+      return mesVenta === mesIndex;
     });
   };
 
@@ -75,14 +93,20 @@ const ObtenerVentas = () => {
         >
           <label>
             Buscar por mes:
-            <input
+            <select
               style={{
                 marginLeft: "10px",
               }}
-              type="text"
               value={mesBuscado}
               onChange={(e) => setMesBuscado(e.target.value)}
-            />
+            >
+              <option value="">Todos los meses</option>
+              {meses.map((mes, index) => (
+                <option key={index} value={mes}>
+                  {mes}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
       </div>

@@ -23,7 +23,7 @@ class VentaControl {
         {
           model: models.auto,
           as: "auto",
-          attributes: ["marca", "modelo", "color", "precio"],
+          attributes: ["marca", "modelo", "color", "precio", "archivo"],
         },
       ],
       attributes: ["recargo", "fecha", ["external_id", "id"], "precioTotal"],
@@ -51,7 +51,14 @@ class VentaControl {
         {
           model: models.auto,
           as: "auto",
-          attributes: ["marca", "external_id", "modelo", "color", "precio"],
+          attributes: [
+            "marca",
+            "external_id",
+            "modelo",
+            "color",
+            "precio",
+            "archivo",
+          ],
         },
       ],
 
@@ -156,7 +163,7 @@ class VentaControl {
   //MODIFICAR VENTA
   async modificar(req, res) {
     const external = req.params.external;
-  
+
     if (!external) {
       res.status(400).json({
         msg: "ERROR",
@@ -165,40 +172,42 @@ class VentaControl {
       });
       return;
     }
-  
+
     let transaction;
     try {
       // Iniciar transacción
       transaction = await models.sequelize.transaction();
-  
+
       // Buscar la venta a modificar
       let ventaModificar = await venta.findOne({
         where: { external_id: external },
         include: [
-          { model: auto, as: "auto" },  // Incluir información del auto
+          { model: auto, as: "auto" }, // Incluir información del auto
         ],
         transaction,
       });
-  
+
       // Verificar si la venta existe
       if (!ventaModificar) {
-        res.status(404).json({ msg: "ERROR", tag: "Venta no encontrada", code: 404 });
+        res
+          .status(404)
+          .json({ msg: "ERROR", tag: "Venta no encontrada", code: 404 });
         return;
       }
-  
+
       var perA = await personal.findOne({
         where: { external_id: req.body.personal },
         include: [{ model: models.rol, as: "rol", attributes: ["nombre"] }],
       });
-  
+
       var autoA = await auto.findOne({
         where: { external_id: req.body.auto },
       });
-  
+
       var compradorA = await comprador.findOne({
         where: { external_id: req.body.comprador },
       });
-  
+
       // Actualizar los campos si se proporcionan en la solicitud
       if (
         req.body.hasOwnProperty("auto") &&
@@ -207,37 +216,37 @@ class VentaControl {
       ) {
         // Guardar el ID del auto anterior
         const idAutoAnterior = ventaModificar.auto.id;
-  
+
         ventaModificar.recargo = req.body.recargo;
         ventaModificar.precioTotal = req.body.precioTotal;
         ventaModificar.id_auto = autoA.id;
         ventaModificar.id_comprador = compradorA.id;
         ventaModificar.id_personal = perA.id;
-  
+
         // Actualizar el estado del auto anterior a true
         await actualizarEstadoAuto(idAutoAnterior, true, transaction);
-  
+
         // Actualizar el estado del nuevo auto a false
         await actualizarEstadoAuto(autoA.id, false, transaction);
       } else {
         res.status(400).json({ msg: "ERROR", tag: "Faltan datos", code: 400 });
         return;
       }
-  
+
       // Guardar los cambios y confirmar la transacción
       await ventaModificar.save({ transaction });
       await transaction.commit();
-  
+
       res.status(200).json({ msg: "OK", code: 200 });
     } catch (error) {
       if (transaction) {
         await transaction.rollback();
       }
-      res.status(500).json({ msg: "ERROR", code: 500, error_msg: error.message });
+      res
+        .status(500)
+        .json({ msg: "ERROR", code: 500, error_msg: error.message });
     }
   }
-  
-  
 }
 
 function esImagen(extension) {
