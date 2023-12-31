@@ -7,6 +7,7 @@ import Link from "next/link";
 
 const ObtenerVentas = () => {
   const [respuesta, setRespuesta] = useState([]);
+  const [mesBuscado, setMesBuscado] = useState("");
   const rol = getRol();
 
   useEffect(() => {
@@ -30,40 +31,93 @@ const ObtenerVentas = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const filtrarPorMes = () => {
+    if (mesBuscado.trim() === "") {
+      return respuesta;
+    }
+
+    const mesBuscadoLowerCase = mesBuscado.toLowerCase();
+    return respuesta.filter((venta) => {
+      const mesVenta = new Date(venta.fecha)
+        .toLocaleString("default", {
+          month: "long",
+        })
+        .toLowerCase();
+      return mesVenta.includes(mesBuscadoLowerCase);
+    });
+  };
+
+  const ventasFiltradas = filtrarPorMes();
+
   return (
     <div>
-      {(rol === "gerente" || rol === "vendedor") && (
+      <h2>Ventas Disponibles</h2>
+      <p>Lista de ventas registradas en el sistema.</p>
+
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {(rol === "gerente" || rol === "vendedor") && (
+          <div
+            style={{
+              position: "relative",
+            }}
+          >
+            <Link href={"/ventas/registrarVenta"} className="btn btn-warning">
+              Registrar Venta
+            </Link>
+          </div>
+        )}
+
         <div
           style={{
             position: "relative",
-            paddingTop: "10px",
-            paddingBottom: "10px",
+            marginRight: "50px",
           }}
         >
-          <Link href={"/ventas/registrarVenta"} className="btn btn-warning">
-            Registrar Venta
-          </Link>
+          <label>
+            Buscar por mes:
+            <input
+              style={{
+                marginLeft: "10px",
+              }}
+              type="text"
+              value={mesBuscado}
+              onChange={(e) => setMesBuscado(e.target.value)}
+            />
+          </label>
         </div>
-      )}
+      </div>
 
       <ul className="list-group">
-        {respuesta.map((venta, index) => (
+        {ventasFiltradas.map((venta, index) => (
           <li key={index} className="list-group-item">
             <div className="content">
-              <h5>Nro {index + 1}</h5>
-              <h5>
+              <h4>
                 {venta.auto.marca} - {venta.auto.modelo}
-              </h5>
-              <p>Recargo: ${venta.recargo}</p>
-              <p>Precio: ${venta.precioTotal}</p>
-              <p>Color: {venta.auto.color}</p>
-              <h5>
-                {venta.comprador.nombres} {venta.comprador.apellidos}
-              </h5>
-              <h5>
-                {venta.personal.nombres} {venta.personal.apellidos}
-              </h5>
-              <h5>{formatDate(venta.fecha)}</h5>
+              </h4>
+              <p>
+                <strong>Comprador:</strong> {venta.comprador.nombres}{" "}
+                {venta.comprador.apellidos}
+              </p>
+              <p>
+                <strong>Vendedor:</strong> {venta.personal.nombres}{" "}
+                {venta.personal.apellidos}
+              </p>
+              <p>
+                <strong>Fecha:</strong> {formatDate(venta.fecha)}
+              </p>
+              <p>
+                {venta.recargo ? (
+                  <span className="activo">Recargo</span>
+                ) : (
+                  <span className="desactivo">Sin Recargo</span>
+                )}
+              </p>
+              <p>
+                <strong>Precio:</strong> ${venta.precioTotal}
+              </p>
+              <p>
+                <strong>Color:</strong> {venta.auto.color}
+              </p>
 
               {(rol === "gerente" || rol === "vendedor") && (
                 <div className="button-container">
@@ -81,6 +135,15 @@ const ObtenerVentas = () => {
       </ul>
 
       <style jsx>{`
+        h2 {
+          color: #333;
+        }
+
+        p {
+          color: #555;
+          margin-bottom: 15px;
+        }
+
         .list-group {
           display: flex;
           flex-wrap: wrap;
@@ -91,6 +154,8 @@ const ObtenerVentas = () => {
           flex: 0 0 calc(48% - 20px);
           margin: 1%;
           list-style: none;
+          border: 1px solid #ddd;
+          padding: 15px;
         }
 
         .content {
@@ -101,6 +166,16 @@ const ObtenerVentas = () => {
           display: flex;
           gap: 5px;
           margin-top: 10px;
+        }
+
+        .activo {
+          color: green;
+          font-weight: bold;
+        }
+
+        .desactivo {
+          color: red;
+          font-weight: bold;
         }
       `}</style>
     </div>

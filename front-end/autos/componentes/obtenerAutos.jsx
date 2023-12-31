@@ -6,15 +6,15 @@ import Link from "next/link";
 import { Carousel } from "react-bootstrap";
 
 const ObtenerAutos = () => {
-  const [respuesta, setRespuesta] = useState([]);
+  const [autos, setAutos] = useState([]);
+  const [autosDisponibles, setAutosDisponibles] = useState(false);
   const rol = getRol();
 
   useEffect(() => {
     const fetchData = async () => {
       const token = getToken();
-      console.log(token);
       const response = await obtenerAutos("autos", token);
-      setRespuesta(response.datos);
+      setAutos(response.datos);
     };
 
     if (typeof window !== "undefined") {
@@ -22,7 +22,11 @@ const ObtenerAutos = () => {
     }
   }, []);
 
-  if (!respuesta || respuesta.length === 0) {
+  const autosFiltrados = autosDisponibles
+    ? autos.filter((auto) => auto.estado === true)
+    : autos;
+
+  if (!autosFiltrados || autosFiltrados.length === 0) {
     return <p>No hay autos disponibles.</p>;
   }
 
@@ -42,30 +46,41 @@ const ObtenerAutos = () => {
         </div>
       )}
 
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            checked={autosDisponibles}
+            onChange={() => setAutosDisponibles(!autosDisponibles)}
+          />
+          Autos Disponibles
+        </label>
+      </div>
+
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <div className="list-group">
-            {respuesta.map((dato, i) => (
+            {autosFiltrados.map((auto, i) => (
               <div key={i} className="list-group-item">
                 <div className="content">
                   <h5>
-                    {dato.marca} - {dato.modelo}
+                    {auto.marca} - {auto.modelo}
                   </h5>
-                  <p>Precio: ${dato.precio}</p>
-                  <p>Color: {dato.color}</p>
-                  <p>Año: {dato.anio}</p>
+                  <p>Precio: ${auto.precio}</p>
+                  <p>Color: {auto.color}</p>
+                  <p>Año: {auto.anio}</p>
 
                   {rol === "gerente" && (
                     <div className="button-container">
                       <Link
-                        href={"autos/actualizarAutos/" + dato.id}
+                        href={`autos/actualizarAutos/${auto.id}`}
                         className="btn btn-primary btn-sm"
                       >
                         Modificar
                       </Link>
 
                       <Link
-                        href={"autos/agregarImagen/" + dato.id}
+                        href={`autos/agregarImagen/${auto.id}`}
                         className="btn btn-primary btn-sm"
                       >
                         Agregar Imagen
@@ -79,10 +94,10 @@ const ObtenerAutos = () => {
         </div>
 
         <div style={{ flex: 1, position: "relative" }}>
-          {respuesta.map((dato, i) => (
+          {autosFiltrados.map((auto, i) => (
             <div key={i} className="list-group-item">
               <Carousel interval={2000} className="custom-carousel">
-                {dato.archivo.split(",").map((nombreArchivo, index) => (
+                {auto.archivo.split(",").map((nombreArchivo, index) => (
                   <Carousel.Item key={index}>
                     <img
                       className="d-block w-100 custom-carousel-image"

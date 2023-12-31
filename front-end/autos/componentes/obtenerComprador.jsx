@@ -27,6 +27,9 @@ const ObtenerCompradores = () => {
 
   return (
     <div>
+      <h2>Lista de Compradores</h2>
+      <p>Información detallada de los compradores registrados en el sistema.</p>
+
       {(rol === "gerente" || rol === "vendedor") && (
         <div
           style={{
@@ -35,18 +38,22 @@ const ObtenerCompradores = () => {
             paddingBottom: "10px",
           }}
         >
-          <Link href={"/compradors/registrarComprador"} className="btn btn-warning">
+          <Link
+            href={"/compradores/registrarComprador"}
+            className="btn btn-warning"
+          >
             Registrar Comprador
           </Link>
         </div>
       )}
+
       <div className="card-container">
         {respuesta.map((comprador, index) => (
           <div key={index} className="card">
             <div className="card-body">
-              <h5 className="card-title">
+              <h4 className="card-title">
                 {comprador.nombres} {comprador.apellidos}
-              </h5>
+              </h4>
               <p className="card-text">
                 <strong>Identificación:</strong> {comprador.identificacion}
               </p>
@@ -57,7 +64,8 @@ const ObtenerCompradores = () => {
                 <strong>Celular:</strong> {comprador.celular}
               </p>
               <p className="card-text">
-                <strong>Fecha de Nacimiento:</strong> {comprador.fecha_nacimiento}
+                <strong>Edad:</strong>{" "}
+                {calcularEdad(comprador.fecha_nacimiento)} años
               </p>
             </div>
           </div>
@@ -65,6 +73,15 @@ const ObtenerCompradores = () => {
       </div>
 
       <style jsx>{`
+        h2 {
+          color: #333;
+        }
+
+        p {
+          color: #555;
+          margin-bottom: 15px;
+        }
+
         .card-container {
           display: flex;
           flex-wrap: wrap;
@@ -104,6 +121,22 @@ const ObtenerCompradores = () => {
       `}</style>
     </div>
   );
+};
+
+const calcularEdad = (fechaNacimiento) => {
+  const today = new Date();
+  const birthdate = new Date(fechaNacimiento);
+  const age = today.getFullYear() - birthdate.getFullYear();
+  const monthDiff = today.getMonth() - birthdate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthdate.getDate())
+  ) {
+    return age - 1;
+  } else {
+    return age;
+  }
 };
 
 export default ObtenerCompradores;

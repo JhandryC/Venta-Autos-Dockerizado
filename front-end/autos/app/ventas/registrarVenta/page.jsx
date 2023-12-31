@@ -35,8 +35,11 @@ export default function AgregarVenta() {
         "admin/comprador",
         token
       );
+      const autosDisponibles = autosResponse.datos.filter(
+        (auto) => auto.estado
+      );
 
-      setAutos(autosResponse.datos);
+      setAutos(autosDisponibles);
       setCompradores(compradoresResponse.datos);
     };
 
@@ -83,7 +86,7 @@ export default function AgregarVenta() {
                   id="auto"
                   className={`form-select ${errors.auto ? "is-invalid" : ""}`}
                   onChange={(e) => setValue("auto", e.target.value)}
-                  defaultValue="" // Usa defaultValue aquí
+                  defaultValue=""
                 >
                   <option value="" disabled>
                     Seleccione un auto
@@ -109,7 +112,7 @@ export default function AgregarVenta() {
                     errors.comprador ? "is-invalid" : ""
                   }`}
                   onChange={(e) => setValue("comprador", e.target.value)}
-                  defaultValue="" // Usa defaultValue aquí
+                  defaultValue=""
                 >
                   <option value="" disabled>
                     Seleccione un comprador
