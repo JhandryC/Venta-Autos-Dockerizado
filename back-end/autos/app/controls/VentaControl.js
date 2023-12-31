@@ -160,8 +160,8 @@ class VentaControl {
     }
   }
 
-  //MODIFICAR VENTA
-  async modificar(req, res) {
+   // MODIFICAR VENTA
+   async modificar(req, res) {
     const external = req.params.external;
 
     if (!external) {
@@ -217,7 +217,7 @@ class VentaControl {
         // Guardar el ID del auto anterior
         const idAutoAnterior = ventaModificar.auto.id;
 
-        ventaModificar.recargo = req.body.recargo;
+        ventaModificar.recargo = calcularRecargo(autoA); // Calcular el nuevo recargo
         ventaModificar.precioTotal = req.body.precioTotal;
         ventaModificar.id_auto = autoA.id;
         ventaModificar.id_comprador = compradorA.id;
@@ -246,6 +246,17 @@ class VentaControl {
         .status(500)
         .json({ msg: "ERROR", code: 500, error_msg: error.message });
     }
+  }
+}
+
+// Función para calcular el recargo basado en las propiedades del auto
+function calcularRecargo(auto) {
+  // Implementa la lógica para calcular el recargo según las propiedades del auto
+  if (auto.color === "BLANCO" || auto.color === "PLATA") {
+    return false;
+  } else {
+    var valorRecargo = auto.precio * 0.05;
+    return true;
   }
 }
 

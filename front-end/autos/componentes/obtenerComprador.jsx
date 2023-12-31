@@ -39,7 +39,7 @@ const ObtenerCompradores = () => {
           }}
         >
           <Link
-            href={"/compradores/registrarComprador"}
+            href={"/compradors/registrarComprador"}
             className="btn btn-warning"
           >
             Registrar Comprador
