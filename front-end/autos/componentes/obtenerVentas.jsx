@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { obtenerVentas } from "@/hooks/Conexion";
 import { getToken, getRol } from "@/hooks/SessionUtil";
 import Link from "next/link";
+import { Carousel } from "react-bootstrap";
 
 const ObtenerVentas = () => {
   const [respuesta, setRespuesta] = useState([]);
   const [mesBuscado, setMesBuscado] = useState("");
-  const [autoData, setAutoData] = useState({});
 
   const meses = [
     "Enero",
@@ -28,17 +28,6 @@ const ObtenerVentas = () => {
   const rol = getRol();
 
   useEffect(() => {
-    const obtenerUnAuto = async () => {
-      const response = await obtenerAutos("/autos/get/" + external, token);
-
-      if (response.msg === "OK") {
-        const autoData = response.datos;
-
-        setAutoData(autoData);
-      } else {
-        console.error("Error fetching auto data:", response);
-      }
-    };
     const fetchData = async () => {
       const token = getToken();
       const response = await obtenerVentas("venta", token);
@@ -123,52 +112,82 @@ const ObtenerVentas = () => {
         </div>
       </div>
 
-      <ul className="list-group">
-        {ventasFiltradas.map((venta, index) => (
-          <li key={index} className="list-group-item">
-            <div className="content">
-              <h4>
-                {venta.auto.marca} - {venta.auto.modelo}
-              </h4>
-              <p>
-                <strong>Comprador:</strong> {venta.comprador.nombres}{" "}
-                {venta.comprador.apellidos}
-              </p>
-              <p>
-                <strong>Vendedor:</strong> {venta.personal.nombres}{" "}
-                {venta.personal.apellidos}
-              </p>
-              <p>
-                <strong>Fecha:</strong> {formatDate(venta.fecha)}
-              </p>
-              <p>
-                {venta.recargo ? (
-                  <span className="activo">Recargo</span>
-                ) : (
-                  <span className="desactivo">Sin Recargo</span>
-                )}
-              </p>
-              <p>
-                <strong>Precio:</strong> ${venta.precioTotal}
-              </p>
-              <p>
-                <strong>Color:</strong> {venta.auto.color}
-              </p>
+      <div style={{ display: "flex" }}>
+        <div style={{ flex: 1 }}>
+          <ul className="list-group">
+            {ventasFiltradas.map((venta, index) => (
+              <li key={index} className="list-group-item">
+                <div className="content">
+                  <div className="venta-info">
+                    <h4>
+                      {venta.auto.marca} - {venta.auto.modelo}
+                    </h4>
+                    <p>
+                      <strong>Comprador:</strong> {venta.comprador.nombres}{" "}
+                      {venta.comprador.apellidos}
+                    </p>
+                    <p>
+                      <strong>Vendedor:</strong> {venta.personal.nombres}{" "}
+                      {venta.personal.apellidos}
+                    </p>
+                    <p>
+                      <strong>Fecha:</strong> {formatDate(venta.fecha)}
+                    </p>
+                    <p>
+                      {venta.recargo ? (
+                        <span className="activo">Recargo</span>
+                      ) : (
+                        <span className="desactivo">Sin Recargo</span>
+                      )}
+                    </p>
+                    <p>
+                      <strong>Precio:</strong> ${venta.precioTotal}
+                    </p>
+                    <p>
+                      <strong>Color:</strong> {venta.auto.color}
+                    </p>
 
-              {(rol === "gerente" || rol === "vendedor") && (
-                <div className="button-container">
-                  <Link
-                    href={"ventas/actualizarVenta/" + venta.id}
-                    className="btn btn-primary btn-sm"
-                  >
-                    Modificar
-                  </Link>
+                    {(rol === "gerente" || rol === "vendedor") && (
+                      <div className="button-container">
+                        <Link
+                          href={"ventas/actualizarVenta/" + venta.id}
+                          className="btn btn-primary btn-sm"
+                        >
+                          Modificar
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <ul className="list-group">
+            {ventasFiltradas.map((venta, index) => (
+              <div key={index} className="list-group-item">
+                <div className="venta-carousel">
+                  <Carousel interval={2000} className="custom-carousel">
+                    {venta.auto.archivo
+                      .split(",")
+                      .map((nombreArchivo, index) => (
+                        <Carousel.Item key={index}>
+                          <img
+                            className="d-block w-100 custom-carousel-image"
+                            src={`http://localhost:3000/images/${nombreArchivo}`}
+                            alt={nombreArchivo}
+                          />
+                        </Carousel.Item>
+                      ))}
+                  </Carousel>
+                </div>
+              </div>
+            ))}
+          </ul>
+        </div>
+      </div>
 
       <style jsx>{`
         h2 {
@@ -212,6 +231,15 @@ const ObtenerVentas = () => {
         .desactivo {
           color: red;
           font-weight: bold;
+        }
+
+        .custom-carousel {
+          max-height: 300px;
+        }
+
+        .custom-carousel-image {
+          max-height: 300px;
+          object-fit: contain;
         }
       `}</style>
     </div>

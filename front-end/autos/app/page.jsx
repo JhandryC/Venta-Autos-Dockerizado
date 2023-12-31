@@ -27,10 +27,12 @@ export default function Home() {
     inicio_sesion(data).then((info) => {
       console.log(info);
       if (!estaSesion()) {
-        //JOption
-        mensajes("Error al iniciar sesión!", info.message, "error");
+        mensajes(
+          "Error al iniciar sesión",
+          "Credenciales incorrectas",
+          "error"
+        );
       } else {
-        //JOption
         mensajes("Has ingresado al sistema!", "Bienvenido", "success");
         router.push("/autos");
       }
