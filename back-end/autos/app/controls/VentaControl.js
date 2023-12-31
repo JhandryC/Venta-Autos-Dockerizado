@@ -249,8 +249,17 @@ class VentaControl {
   }
 }
 
-function esImagen(extension) {
-  return extensionesImagen.includes(extension);
+async function actualizarEstadoAuto(idAuto, estado, transaction) {
+  // Agregar lógica para actualizar el estado del auto según tu modelo
+  // Por ejemplo, puedes tener un modelo de Auto con un campo "estado" que debes actualizar
+  const autoActualizado = await auto.findByPk(idAuto, { transaction });
+  if (autoActualizado) {
+    autoActualizado.estado = estado;
+    await autoActualizado.save({ transaction });
+  } else {
+    throw new Error(`Auto con ID ${idAuto} no encontrado`);
+  }
 }
+
 
 module.exports = VentaControl;
