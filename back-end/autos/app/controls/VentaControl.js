@@ -23,7 +23,7 @@ class VentaControl {
         {
           model: models.auto,
           as: "auto",
-          attributes: ["marca", "modelo", "color", "precio", "archivo"],
+          attributes: ["marca", "modelo", "color", "precio", "archivo", "external_id"],
         },
       ],
       attributes: ["recargo", "fecha", ["external_id", "id"], "precioTotal"],

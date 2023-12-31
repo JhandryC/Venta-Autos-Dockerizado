@@ -8,6 +8,7 @@ import Link from "next/link";
 const ObtenerVentas = () => {
   const [respuesta, setRespuesta] = useState([]);
   const [mesBuscado, setMesBuscado] = useState("");
+  const [autoData, setAutoData] = useState({});
 
   const meses = [
     "Enero",
@@ -27,6 +28,17 @@ const ObtenerVentas = () => {
   const rol = getRol();
 
   useEffect(() => {
+    const obtenerUnAuto = async () => {
+      const response = await obtenerAutos("/autos/get/" + external, token);
+
+      if (response.msg === "OK") {
+        const autoData = response.datos;
+
+        setAutoData(autoData);
+      } else {
+        console.error("Error fetching auto data:", response);
+      }
+    };
     const fetchData = async () => {
       const token = getToken();
       const response = await obtenerVentas("venta", token);
