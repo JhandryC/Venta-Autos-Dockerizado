@@ -41,9 +41,9 @@ class VentaControl {
         "recargo",
         ["external_id", "id"],
         "precioTotal",
-        "auto",
-        "comprador",
-        "personal",
+        "id_auto",
+        "id_comprador",
+        "id_personal",
       ],
     });
     if (lista === undefined || lista == null) {

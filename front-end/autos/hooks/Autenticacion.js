@@ -1,4 +1,11 @@
-import { enviar, crearAuto, actualizarAuto, crearComprador, crearVenta } from "./Conexion";
+import {
+  enviar,
+  crearAuto,
+  actualizarAuto,
+  crearComprador,
+  crearVenta,
+  actualizarVenta,
+} from "./Conexion";
 import { save, saveToken, getToken } from "./SessionUtil";
 
 export async function inicio_sesion(data) {
@@ -22,6 +29,16 @@ export async function modificarAuto(data, external) {
   const token = getToken();
   const response = await actualizarAuto(
     "admin/auto/modificar/" + external,
+    data,
+    token
+  );
+  return response;
+}
+
+export async function modificarVenta(data, external) {
+  const token = getToken();
+  const response = await actualizarVenta(
+    "admin/venta/modificar/" + external,
     data,
     token
   );

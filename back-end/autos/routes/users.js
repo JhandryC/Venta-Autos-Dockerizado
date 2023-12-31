@@ -180,7 +180,7 @@ router.get("/colores", async function (req, res) {
 
 //VENTA
 router.get("/venta", ventaControl.listar);
-router.get("/autos/get/:external", authVendedorGerente, autoControl.obtener);
+router.get("/venta/get/:external", authVendedorGerente, ventaControl.obtener);
 router.post("/admin/venta/save", authVendedorGerente, ventaControl.guardar);
 router.put(
   "/admin/venta/modificar/:external",

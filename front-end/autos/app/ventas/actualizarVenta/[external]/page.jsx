@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
-import { obtenerAutos, actualizarAuto } from "@/hooks/Conexion";
+import { obtenerVentas, actualizarVenta } from "@/hooks/Conexion";
 import { getToken } from "@/hooks/SessionUtil";
 import { useEffect, useState } from "react";
 import mensajes from "@/componentes/Mensajes";
@@ -15,63 +15,37 @@ export default function EditarVenta() {
   const router = useRouter();
   const token = getToken();
   const { external } = useParams();
-  const [colores, setColores] = useState([]);
-  const [selectedColor, setSelectedColor] = useState("");
-  const [autoData, setAutoData] = useState({});
+  const [ventaData, setVentaData] = useState({});
 
   useEffect(() => {
-    const obtenerColores = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/colores");
-
-        if (!response.ok) {
-          throw new Error(
-            `Error al obtener colores: ${response.status} - ${response.statusText}`
-          );
-        }
-
-        const data = await response.json();
-        setColores(data.colores);
-        setSelectedColor(data.colores[0] || "");
-      } catch (error) {
-        console.error(error.message);
-      }
-    };
-
-    const obtenerUnAuto = async () => {
-      const response = await obtenerAutos("/autos/get/" + external, token);
+    const obtenerUnaVenta = async () => {
+      const response = await obtenerVentas("venta/get/" + external, token);
 
       if (response.msg === "OK") {
-        const autoData = response.datos;
+        const ventaData = response.datos;
 
-        setAutoData(autoData);
+        setVentaData(ventaData);
 
         reset({
-          marca: autoData.marca,
-          modelo: autoData.modelo,
-          precio: autoData.precio,
-          anio: autoData.anio,
-          color: autoData.color,
-          estado: autoData.estado ? "Disponible" : "No Disponible",
+          personal: ventaData.id_personal,
+          modelo: ventaData.id_comprador,
+          precio: ventaData.id_auto,
         });
-        setSelectedColor(autoData.color || "");
       } else {
         console.error("Error fetching auto data:", response);
       }
+
+      console.log(response);
     };
 
-    obtenerColores();
-    obtenerUnAuto();
+    obtenerUnaVenta();
   }, []);
 
   // Validaciones
   const validationSchema = Yup.object().shape({
-    marca: Yup.string().required("Ingrese la marca del auto"),
+    personal: Yup.string().required("Ingrese la personal del auto"),
     modelo: Yup.string().required("Ingrese el modelo del auto"),
-    precio: Yup.string().required("Ingrese el valor del auto"),
-    anio: Yup.string().required("Ingrese el año del auto"),
-    color: Yup.string().required("Seleccione un color"),
-    estado: Yup.string().required("Seleccione un estado"),
+    auto: Yup.string().required("Ingrese el valor del auto"),
   });
 
   const formOptions = { resolver: yupResolver(validationSchema) };
@@ -83,7 +57,7 @@ export default function EditarVenta() {
 
   const sendData = (formData) => {
     var dato = {
-      marca: formData.marca,
+      personal: formData.personal,
       modelo: formData.modelo,
       precio: formData.precio,
       anio: formData.anio,
@@ -91,10 +65,10 @@ export default function EditarVenta() {
       color: selectedColor,
     };
 
-    actualizarAuto("admin/auto/modificar/" + external, dato, token).then(
+    actualizarVenta("admin/venta/modificar/" + external, dato, token).then(
       () => {
-        mensajes("Auto modificado correctamente", "OK", "success");
-        router.push("/autos");
+        mensajes("Venta modificada correctamente", "OK", "success");
+        router.push("/ventas");
       }
     );
   };
@@ -114,8 +88,8 @@ export default function EditarVenta() {
             <div className="list-group">
               <div className="list-group-item">
                 <Carousel interval={2000} className="custom-carousel">
-                  {autoData.archivo &&
-                    autoData.archivo.split(",").map((nombreArchivo, index) => (
+                  {ventaData.archivo &&
+                    ventaData.archivo.split(",").map((nombreArchivo, index) => (
                       <Carousel.Item key={index}>
                         <img
                           className="d-block w-100 custom-carousel-image"
@@ -142,17 +116,17 @@ export default function EditarVenta() {
               <form onSubmit={handleSubmit(sendData)}>
                 <div>
                   <div className="form-outline form-white mb-4">
-                    <label className="form-label">Marca</label>
+                    <label className="form-label">personal</label>
                     <input
-                      {...register("marca")}
-                      name="marca"
-                      id="marca"
+                      {...register("personal")}
+                      name="personal"
+                      id="personal"
                       className={`form-control ${
-                        errors.marca ? "is-invalid" : ""
+                        errors.personal ? "is-invalid" : ""
                       }`}
                     />
                     <div className="alert alert-danger invalid-feedback">
-                      {errors.marca?.message}
+                      {errors.personal?.message}
                     </div>
                   </div>
                   <div className="form-outline form-white mb-4">
@@ -197,29 +171,7 @@ export default function EditarVenta() {
                       {errors.anio?.message}
                     </div>
                   </div>
-                  <div className="form-outline form-white mb-4">
-                    <label className="form-label">Color</label>
-                    <select
-                      {...register("color")}
-                      value={selectedColor}
-                      onChange={(e) => setSelectedColor(e.target.value)}
-                      className={`form-control ${
-                        errors.color ? "is-invalid" : ""
-                      }`}
-                    >
-                      <option value="" disabled>
-                        Selecciona un color
-                      </option>
-                      {colores.map((color) => (
-                        <option key={color} value={color}>
-                          {color}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="alert alert-danger invalid-feedback">
-                      {errors.color?.message}
-                    </div>
-                  </div>
+
                   <div className="form-outline form-white mb-4">
                     <label className="form-label">Estado</label>
 

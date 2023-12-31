@@ -164,6 +164,24 @@ export async function actualizarAuto(recurso, data, token) {
   return responseData;
 }
 
+
+export async function actualizarVenta(recurso, data, token) {
+  const headers = {
+    "Content-type": "application/json",
+    "auto-token": token,
+  };
+
+  const response = await fetch(URL + recurso, {
+    cache: "no-store",
+    method: "PUT",
+    headers: headers,
+    body: JSON.stringify(data),
+  });
+
+  const responseData = await response.json();
+  return responseData;
+}
+
 export async function subirImagen(recurso, data, token) {
   const headers = {
     "auto-token": token,
