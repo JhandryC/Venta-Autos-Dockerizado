@@ -190,11 +190,10 @@ class AutoControl {
             async function (err) {
               existingImages.push(name);
 
-              // Reemplazar la cadena existente con los nuevos nombres de archivo
               autoModificar.archivo =
                 existingImages.length > 0
                   ? existingImages.join(",")
-                  : "auto.png"; // Si no hay nuevas imágenes, se establece la imagen por defecto
+                  : "auto.png";
 
               await autoModificar.save();
               res.status(200);

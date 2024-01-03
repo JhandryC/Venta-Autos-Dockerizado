@@ -160,8 +160,8 @@ class VentaControl {
     }
   }
 
-   // MODIFICAR VENTA
-   async modificar(req, res) {
+  // MODIFICAR VENTA
+  async modificar(req, res) {
     const external = req.params.external;
 
     if (!external) {
@@ -208,25 +208,21 @@ class VentaControl {
         where: { external_id: req.body.comprador },
       });
 
-      // Actualizar los campos si se proporcionan en la solicitud
       if (
         req.body.hasOwnProperty("auto") &&
         req.body.hasOwnProperty("comprador") &&
         req.body.hasOwnProperty("personal")
       ) {
-        // Guardar el ID del auto anterior
         const idAutoAnterior = ventaModificar.auto.id;
 
-        ventaModificar.recargo = calcularRecargo(autoA); // Calcular el nuevo recargo
+        ventaModificar.recargo = calcularRecargo(autoA);
         ventaModificar.precioTotal = req.body.precioTotal;
         ventaModificar.id_auto = autoA.id;
         ventaModificar.id_comprador = compradorA.id;
         ventaModificar.id_personal = perA.id;
 
-        // Actualizar el estado del auto anterior a true
         await actualizarEstadoAuto(idAutoAnterior, true, transaction);
 
-        // Actualizar el estado del nuevo auto a false
         await actualizarEstadoAuto(autoA.id, false, transaction);
       } else {
         res.status(400).json({ msg: "ERROR", tag: "Faltan datos", code: 400 });
@@ -249,9 +245,8 @@ class VentaControl {
   }
 }
 
-// Función para calcular el recargo basado en las propiedades del auto
 function calcularRecargo(auto) {
-  // Implementa la lógica para calcular el recargo según las propiedades del auto
+  
   if (auto.color === "BLANCO" || auto.color === "PLATA") {
     return false;
   } else {
@@ -261,8 +256,6 @@ function calcularRecargo(auto) {
 }
 
 async function actualizarEstadoAuto(idAuto, estado, transaction) {
-  // Agregar lógica para actualizar el estado del auto según tu modelo
-  // Por ejemplo, puedes tener un modelo de Auto con un campo "estado" que debes actualizar
   const autoActualizado = await auto.findByPk(idAuto, { transaction });
   if (autoActualizado) {
     autoActualizado.estado = estado;
