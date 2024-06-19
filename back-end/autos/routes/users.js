@@ -106,17 +106,17 @@ const authGerente = auth("gerente");
 router.post("/login", cuentaControl.inicio_sesion);
 
 //ROL
-router.get("/admin/rol", authGerente, rolControl.listar);
-router.post("/admin/rol/save", authGerente, rolControl.guardar);
+router.get("/admin/rol", rolControl.listar);
+router.post("/admin/rol/save", rolControl.guardar);
 
 //PERSONAL
-router.get("/admin/personal", authGerente, personalControl.listar);
+router.get("/admin/personal", personalControl.listar);
 router.get(
   "/admin/personal/get/:external",
   authGerente,
   personalControl.obtener
 );
-router.post("/admin/personal/save", authGerente, personalControl.guardar);
+router.post("/admin/personal/save", personalControl.guardar);
 router.put(
   "/admin/personal/modificar/:external",
   authGerente,
@@ -127,24 +127,21 @@ router.put(
 router.get("/admin/comprador", compradorControl.listar);
 router.get(
   "/admin/comprador/get/:external",
-  authVendedorGerente,
   compradorControl.obtener
 );
 router.post(
   "/admin/comprador/save",
-  authVendedorGerente,
   compradorControl.guardar
 );
 router.put(
   "/admin/comprador/modificar/:external",
-  authVendedorGerente,
   compradorControl.modificar
 );
 
 //AUTO
 router.get("/autos", autoControl.listar);
 router.get("/autos/get/:external", autoControl.obtener);
-router.post("/admin/auto/save", authGerente, autoControl.guardar);
+router.post("/admin/auto/save", autoControl.guardar);
 router.put(
   "/admin/auto/modificar/:external",
   authGerente,
@@ -152,7 +149,6 @@ router.put(
 );
 router.post(
   "/admin/auto/file/save/:external",
-  authGerente,
   autoControl.guardarFoto
 );
 router.use("/images", express.static("public/images"));
@@ -180,8 +176,8 @@ router.get("/colores", async function (req, res) {
 
 //VENTA
 router.get("/venta", ventaControl.listar);
-router.get("/venta/get/:external", authVendedorGerente, ventaControl.obtener);
-router.post("/admin/venta/save", authVendedorGerente, ventaControl.guardar);
+router.get("/venta/get/:external", ventaControl.obtener);
+router.post("/admin/venta/save", ventaControl.guardar);
 router.put(
   "/admin/venta/modificar/:external",
   authVendedorGerente,

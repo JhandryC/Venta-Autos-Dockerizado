@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Proyecto de Aplicación Node con Next.js y Express
 
-## Getting Started
+Este proyecto es una aplicación desarrollada en Node.js utilizando Next.js para el frontend y Express para el backend. A continuación, se presentan las instrucciones para configurar y dockerizar la aplicación.
 
-First, run the development server:
+## Requisitos Previos
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Antes de comenzar, asegúrate de tener instalados los siguientes programas en tu máquina:
+
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+## Configuración de Docker
+
+### Dockerfile del Backend
+
+Ubicación: `back-end/autos/Dockerfile`
+```yaml
+FROM node:18
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY wait-for-it.sh /usr/src/app/wait-for-it.sh
+
+RUN chmod +x /usr/src/app/wait-for-it.sh
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["./wait-for-it.sh", "mariadb:3306", "--", "npm", "start"]'
 ```
+### Dockerfile del Frontend
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ubicación: `front-end/autos/Dockerfile`
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```yaml
+FROM node:18
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+WORKDIR /usr/src/app
 
-## Learn More
+COPY package*.json ./
 
-To learn more about Next.js, take a look at the following resources:
+RUN npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+COPY . .
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+EXPOSE 3001
 
-## Deploy on Vercel
+CMD ["npm", "run", "dev"]
+```
+### Docker Compose
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Ubicación: `docker-compose.yml`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```yaml
+version: '3'
+services:
+  backend:
+    build:
+      context: ./back-end/autos/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mariadb
+
+  frontend:
+    build:
+      context: ./front-end/autos/
+    ports:
+      - "3001:3000"
+
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: <ROOT_PASSWORD>
+      MYSQL_DATABASE: <NAME_DATABASE>
+      MYSQL_USER: <USER_DATABASE>
+      MYSQL_PASSWORD: <DATABASE_PASSWORD>
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+```
+## Instrucciones de Configuración y Ejecución
+
+### Clonar el Repositorio
+
+Clona este repositorio en tu máquina local.
+
+- git clone <URL_DEL_REPOSITORIO>
+- cd <NOMBRE_DEL_REPOSITORIO>
+
+### Construir y Levantar los Contenedores
+
+Utiliza Docker Compose para construir y levantar los contenedores.
+
+docker-compose up --build
+
+### Acceder a la Aplicación
+
+- Frontend: Abre tu navegador web y visita http://localhost:3001.
+- Backend: El backend estará corriendo en http://localhost:3000.

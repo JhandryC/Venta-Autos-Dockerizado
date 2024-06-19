@@ -38,7 +38,7 @@ export default function EditarAuto() {
     };
 
     obtenerUnAuto();
-  }, []);
+  }, [external, reset, token]);
 
   // Validaciones
   const validationSchema = Yup.object().shape({

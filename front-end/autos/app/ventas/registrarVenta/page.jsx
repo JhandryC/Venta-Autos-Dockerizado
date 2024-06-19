@@ -6,16 +6,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { guardarVenta } from "@/hooks/Autenticacion";
-import { getId, getToken } from "@/hooks/SessionUtil";
-import { useEffect, useState } from "react";
-import mensajes from "@/componentes/Mensajes";
 import { obtenerAutos, obtenerComprador } from "@/hooks/Conexion";
+import { useEffect, useState } from "react";
 
 export default function AgregarVenta() {
   const router = useRouter();
-  const idPersonal = getId();
-  const token = getToken();
 
+  // Estado local para almacenar datos de autos y compradores
   const [autos, setAutos] = useState([]);
   const [compradores, setCompradores] = useState([]);
 
@@ -26,40 +23,40 @@ export default function AgregarVenta() {
   });
   const formOptions = { resolver: yupResolver(validationSchema) };
   const { register, handleSubmit, formState, setValue } = useForm(formOptions);
-  let { errors } = formState;
+  const { errors } = formState;
 
   useEffect(() => {
     const fetchData = async () => {
+      // Obtener token y idPersonal del sessionStorage (cliente)
+      const token = sessionStorage.getItem('token');
+      const idPersonal = sessionStorage.getItem('idPersonal');
+
+      // Obtener datos de autos y compradores usando el token
       const autosResponse = await obtenerAutos("autos", token);
-      const compradoresResponse = await obtenerComprador(
-        "admin/comprador",
-        token
-      );
-      const autosDisponibles = autosResponse.datos.filter(
-        (auto) => auto.estado
-      );
+      const compradoresResponse = await obtenerComprador("admin/comprador", token);
+      const autosDisponibles = autosResponse.datos.filter((auto) => auto.estado);
 
       setAutos(autosDisponibles);
       setCompradores(compradoresResponse.datos);
     };
 
     fetchData();
-  }, []);
+  }, []); // El [] como segundo argumento asegura que useEffect se ejecute solo una vez
 
   const sendData = async (data) => {
-    console.log(data);
+    // Obtener token y idPersonal del sessionStorage (cliente)
+    const token = sessionStorage.getItem('token');
+    const idPersonal = sessionStorage.getItem('idPersonal');
+
     var dato = {
       auto: data.auto,
       comprador: data.comprador,
       personal: idPersonal,
     };
 
-    console.log(dato);
-    guardarVenta(dato).then((info) => {
-      console.log(info);
-
-      mensajes("Venta realizada correctamente", "OK", "success");
-
+    guardarVenta(dato).then(() => {
+      // Manejar la navegación y mensajes
+      console.log("Venta realizada correctamente");
       router.push("/ventas");
     });
   };
@@ -108,9 +105,7 @@ export default function AgregarVenta() {
                 <select
                   {...register("comprador")}
                   id="comprador"
-                  className={`form-select ${
-                    errors.comprador ? "is-invalid" : ""
-                  }`}
+                  className={`form-select ${errors.comprador ? "is-invalid" : ""}`}
                   onChange={(e) => setValue("comprador", e.target.value)}
                   defaultValue=""
                 >
